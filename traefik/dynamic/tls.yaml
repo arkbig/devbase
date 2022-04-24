@@ -1,0 +1,11 @@
+tls:
+  # 特定ドメイン名のサーバー証明書を指定（証明書のドメインと一致するものが使われる）
+  certificates:
+    - certfile: /certs/ssl-dev.test.cer
+      keyfile: /certs/ssl-dev.test.key
+  # stores:
+  #   default:
+  #     # 上記サーバー証明書に一致しないドメインはこちらが使われる（未設定だとTraefikが自動で作る）
+  #     defaultCertificate:
+  #       certfile: /certs/ssl-dev.test.cer
+  #       keyfile: /certs/ssl-dev.test.key

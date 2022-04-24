@@ -1,0 +1,10 @@
+http:
+  routers:
+    traefik:
+      entrypoints: https
+      rule: Host(`traefik{{ env "DOMAIN" }}`) && PathPrefix(`/`)
+      service: dashboard@internal
+    traefik-api:
+      entrypoints: https
+      rule: Host(`traefik{{ env "DOMAIN" }}`) && PathPrefix(`/api`)
+      service: api@internal

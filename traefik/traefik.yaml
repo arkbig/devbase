@@ -1,0 +1,54 @@
+global:
+  checknewversion: false
+  sendanonymoususage: false
+
+# 公開ポート指定
+entrypoints:
+  smtp:
+    address: :25
+  dns-tcp:
+    address: :53/tcp
+  dns-udp:
+    address: :53/udp
+  http:
+    address: :80
+    # httpsにリダイレクト
+    http:
+      redirections:
+        entrypoint:
+          to: https
+          scheme: https
+  https:
+    address: :443
+    http:
+      tls: true # TraefikでTLS終端
+  smtps:
+    address: :587
+  mongodb:
+    address: :27017
+
+log:
+  level: DEBUG
+  format: json
+accessLog:
+  format: json
+
+# ダッシュボード有効化
+api:
+  # insecure: true # デフォルトルーターを利用する場合は指定
+  dashboard: true
+
+# 設定読み込み箇所
+providers:
+  file:
+    directory: /etc/traefik/dynamic
+  docker:
+    # labels:に traefik.enalbe: trueがあるものだけ対象にするならtrueを指定
+    # exposedbydefault: false
+    # compose起動ならNameは"compose.yamlのservices:に指定した名前"-${COMPOSE_PROJECT_NAME}
+    defaultrule: Host(`{{ normalize .Name }}{{ env "DOMAIN" }}`)
+
+# Prometheusを使う場合
+# metrics:
+#   prometheus:
+#     entrypoint: https

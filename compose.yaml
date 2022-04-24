@@ -1,0 +1,112 @@
+services:
+  dnsmasq:
+    image: arkbig/dnsmasq
+    init: true
+    build:
+      context: ./dnsmasq
+      args:
+        no_proxy: ${no_proxy-}
+        http_proxy: ${http_proxy-}
+        https_proxy: ${https_proxy-}
+    restart: unless-stopped
+    # environment:
+    #   DNSMASQ_ADDR: your-host-ip
+    ports:
+      - 127.0.0.1::53
+      - 127.0.0.1::53/udp
+    labels:
+      - traefik.enable=true
+      # TCP (non-tls)
+      - traefik.tcp.routers.dnsmasq-${COMPOSE_PROJECT_NAME:-devbase}.entrypoints=dns-tcp
+      - traefik.tcp.routers.dnsmasq-${COMPOSE_PROJECT_NAME:-devbase}.rule=HostSNI(`*`)
+      - traefik.tcp.services.dnsmasq-${COMPOSE_PROJECT_NAME:-devbase}.loadbalancer.server.port=53
+      # UDP
+      - traefik.udp.routers.dnsmasq-${COMPOSE_PROJECT_NAME:-devbase}.entrypoints=dns-udp
+      - traefik.udp.services.dnsmasq-${COMPOSE_PROJECT_NAME:-devbase}.loadbalancer.server.port=53
+
+  exim4:
+    image: arkbig/exim4
+    build:
+      context: ./exim4
+      args:
+        no_proxy: ${no_proxy-}
+        http_proxy: ${http_proxy-}
+        https_proxy: ${https_proxy-}
+    init: true
+    restart: unless-stopped
+    # environment:
+    #   EXIM4_RELAY_DOMAIN: your-company.com
+    #   EXIM4_RELAY_ADDR: smtp.your-company.com
+    ports:
+      - 127.0.0.1::587
+    labels:
+      - traefik.enable=true
+      # Traefikにホスト名みてもらうためにSMTP over TLSにしたかったけど、exim4の設定がわからなかった
+      # 複数SMTPサーバーが欲しくなったらstunnelというソフトを試すかな
+      - traefik.tcp.routers.exim4-${COMPOSE_PROJECT_NAME:-devbase}.entrypoints=smtps
+      - traefik.tcp.routers.exim4-${COMPOSE_PROJECT_NAME:-devbase}.rule=HostSNI(`*`)
+      # - traefik.tcp.routers.exim4-${COMPOSE_PROJECT_NAME:-devbase}.rule=HostSNI(`exim4-${COMPOSE_PROJECT_NAME:-devbase}${DOMAIN:-.dev.test}`)
+      # - traefik.tcp.routers.exim4-${COMPOSE_PROJECT_NAME:-devbase}.tls.passthrough=true
+
+  mailhog:
+    image: mailhog/mailhog
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1::1025
+      - 127.0.0.1::8025
+    labels:
+      - traefik.enable=true
+      # SMTP側
+      - traefik.tcp.routers.mailhog-${COMPOSE_PROJECT_NAME:-devbase}.entrypoints=smtp
+      - traefik.tcp.routers.mailhog-${COMPOSE_PROJECT_NAME:-devbase}.rule=HostSNI(`*`)
+      # stunnelというソフトを使って中継するとTLS接続もできそう
+      # - traefik.tcp.routers.mailhog-${COMPOSE_PROJECT_NAME:-devbase}.rule=HostSNI(`mailhog-${COMPOSE_PROJECT_NAME:-devbase}${DOMAIN:-.dev.test}`)
+      # - traefik.tcp.routers.mailhog-${COMPOSE_PROJECT_NAME:-devbase}.tls.passthrough=true
+      - traefik.tcp.services.mailhog-${COMPOSE_PROJECT_NAME:-devbase}.loadbalancer.server.port=1025
+      # 以前にproxyprotocolがあるとダメだったような気がしたんだけど...
+      # - traefik.tcp.services.mailhog-${COMPOSE_PROJECT_NAME:-devbase}.loadbalancer.proxyprotocol=false
+      # HTTPS側
+      - traefik.http.routers.mailhog-${COMPOSE_PROJECT_NAME:-devbase}.entrypoints=https
+      - traefik.http.services.mailhog-${COMPOSE_PROJECT_NAME:-devbase}.loadbalancer.server.port=8025
+
+  sslcert:
+    image: arkbig/sslcert
+    build:
+      context: ./sslcert
+      args:
+        no_proxy: ${no_proxy-}
+        http_proxy: ${http_proxy-}
+        https_proxy: ${https_proxy-}
+    volumes:
+      - ./sslcert/.certs/:/certs/
+    profiles:
+      - one-shot
+
+  traefik:
+    image: traefik
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik:/etc/traefik:ro
+      - ./sslcert/.certs/ssl-dev.test.cer:/certs/ssl-dev.test.cer:ro
+      - ./sslcert/.certs/ssl-dev.test.key:/certs/ssl-dev.test.key:ro
+    network_mode: host
+
+  udptunnel:
+    image: arkbig/udptunnel
+    restart: unless-stopped
+    build:
+      context: ./udptunnel
+      args:
+        no_proxy: ${no_proxy-}
+        http_proxy: ${http_proxy-}
+        https_proxy: ${https_proxy-}
+    volumes:
+      - ./udptunnel/udp_forwarding.conf:/home/udpstaff/udp_forwarding.conf
+    # 他のcompose(network)にも送るかもしれないので、hostにしておく
+    # （hostじゃなくて、networks:に指定すれば複数ネットワークに入ることもできるけど）
+    network_mode: host
+    profiles:
+      - udptunnel
