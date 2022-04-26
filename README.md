@@ -1,6 +1,6 @@
 # devbase
 
-Development base environment using Docker containers. Using Traefik with TLS, Dnsmasq, Exim4 and Mailhog.
+Development base environment stack using Docker containers. Using Traefik with TLS, Dnsmasq, Exim4 and Mailhog.
 
 I have confirmed that it works with Colima on macOS and WSL2 on Windows 10.
 It will probably work on Linux as well.
@@ -60,6 +60,8 @@ class YourProj2 {
     - Host(`wasi.dev.test`)
 }
 ```
+
+> ___NOTE:___ Sorry, my native language is Japanese.
 
 ## Install
 
