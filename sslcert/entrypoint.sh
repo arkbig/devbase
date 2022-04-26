@@ -15,7 +15,7 @@ export IFS LC_ALL=C LANG=C PATH
 # UID,GIDを合わせる
 uid=$(stat -c "%u" .)
 gid=$(stat -c "%g" .)
-ug_name=dnsstaff
+ug_name=castaff
 if [ ${CONTAINER_GID} -ne ${gid} ]; then
     groupmod -g ${CONTAINER_GID} -o ${ug_name}
     chgrp -R ${CONTAINER_GID} .

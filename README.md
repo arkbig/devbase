@@ -2,7 +2,8 @@
 
 Development base environment using Docker containers. Using Traefik with TLS, Dnsmasq, Exim4 and Mailhog.
 
-devbaseはDockerコンテナを利用した開発環境の基本セットです。
+I have confirmed that it works with Colima on macOS and WSL2 on Windows 10.
+It will probably work on Linux as well.
 
 The software used is as follows
 
@@ -60,32 +61,138 @@ class YourProj2 {
 }
 ```
 
-## Install方法
+## Install
 
-1. clone this repositoy.
+1. clone this repositoy. (run on WSL2 if Win)
 
     ```sh
     git clone https://github.com/arkbig/devbase.git
     cd devbase
     ```
 
-2. create certificates.
+2. create compose.override.yaml.
+   - <details><summary>🍎 for Mac</summary>
+     1. configure compose file.
+        create `compose.override.yaml`
+
+        ```yaml
+        services:
+          dnsmasq:
+            environment:
+              # This is your host ip address.
+              DNSMASQ_ADDR: 10.0.0.1
+          sslcert:
+            environment:
+              # These are your id.
+              CONTAINER_UID: 501
+              CONTAINER_GID: 20
+          udptunnel:
+            environment:
+              CONTAINER_UID: 501
+              CONTAINER_GID: 20
+        ```
+
+        - DNSMASQ_ADDR is a host IP address that can be seen in `ifconfig`.
+        - CONTAINER_{UID,GID} are id that can be seel in `id`.
+     </details>
+   - <details><summary>💠 for Win(WSL2)</summary>
+
+     1. configure compose file.
+        create `compose.override.yaml`
+
+        ```yaml
+        services:
+          dnsmasq:
+            environment:
+              # This is same as wsl_startup.bat (wsl_assign_ip.bat)
+              DNSMASQ_ADDR: 192.168.100.100
+              # This is your using DNS server.
+              DNSMASQ_SERVER: 1.1.1.1
+          sslcert:
+            environment:
+              # These are your id.
+              CONTAINER_UID: 1000
+              CONTAINER_GID: 1000
+          udptunnel:
+            environment:
+              # These are your id.
+              CONTAINER_UID: 1000
+              CONTAINER_GID: 1000
+        ```
+
+        - DNSMASQ_ADDR is a IP address that can be seen in `ip a show eth0` on WSL.
+        - DNSMASQ_SERVER is a DNS Serve that can be seen in `ipconfig /all` on host Win.
+          If there is more than one, also specify DNSMASQ_SERVER_1 and DNSMASQ_SERVER_2.
+        - CONTAINER_{UID,GID} are id that can be seen in `id` on WSL.
+     </details>
+   - <details><summary>🐧 for Ubuntu</summary>
+
+     1. configure compose file.
+        create `compose.override.yaml`
+
+        ```yaml
+        services:
+          dnsmasq:
+            environment:
+              # This is your host ip address.
+              DNSMASQ_ADDR: 10.0.0.1
+              # This is your using DNS server.
+              DNSMASQ_SERVER: 1.1.1.1
+          sslcert:
+            environment:
+              # These are your id.
+              CONTAINER_UID: 1000
+              CONTAINER_GID: 1000
+          udptunnel:
+            environment:
+              # These are your id.
+              CONTAINER_UID: 1000
+              CONTAINER_GID: 1000
+        ```
+
+        - DNSMASQ_ADDR is a host IP address that can be seen in `ip a show`.
+        - CONTAINER_{UID,GID} are id that can be seel in `id`.
+     </details>
+
+3. create certificates.
 
     ```sh
-    docker compose build sslcert
     mkdir sslcert/.certs
+    docker compose build sslcert
     docker compose run --rm sslcert
     ```
 
-3. run compose.
+4. register sslcert/.certs/ca-My-Test.cer to the OS
+   - 🍎 for Mac
+     - To Keychain Access. (Open the .cer file in the finder.)
+   - 💠 for Win(WSL2)
+     - To MMC. (Open the .cer file in the explorer.)
+       - Certificate store is "Trusted Root Certification Authorities".
+     - Also installed in WSL2 (see Ubuntu)
+   - 🐧 for Ubuntu
+     - copy & add
+
+        ```sh
+        sudo mkdir /usr/share/ca-certificates/self
+        sudo cp sslcert/.certs/ca-My-Test.cer /usr/share/ca-certificates/self/
+        sudo vi /etc/ca-certificates.conf
+        # # add following line
+        # self/ca-My-Test.cer
+        sudo update-ca-certificates
+        ```
+
+5. run compose.
 
     ```sh
     docker compose up -d
     ```
 
-4. If udp port forwarding is not available, run udptunnel in the background.
-   - 🍎 for Mac.
-     - ❓ Check command is `sudo lsof -i:53`. If TCP is present but UDP is not, as shown below, this is not supported.
+    - Although an image is specified, it does not exist, so a pull will result in an error and build will run.
+
+6. DNS related settings
+   - <details><summary>🍎 for Mac</summary>
+
+     - ❓ Check command is `sudo lsof -i:53`. If TCP is present but UDP is not, as shown below, this is not supported UDP port forwarding.
 
         ```sh
         COMMAND   PID USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
@@ -93,24 +200,26 @@ class YourProj2 {
         🆖 UDP is missing. So run udptunnel.
         ```
 
-     - Run udptunnel using socat
+     - Run udptunnel using socat. If UDP was supported, skip this next is add to resolver.
 
-        ```sh
-        sudo brew install socat
-        udptunnel/forward_udp.sh udptunnel/udp_forwarding.conf &
-        # If you want to stop, run the following command
-        # udptunnel/forward_udp.sh udptunnel/udp_forwarding.conf kill
-        ```
+       - for host
 
-     - Run udptunnel service on container
-       - Also, you can add `COMPOSE_PROFILES=udptunnel` to `.env`
+          ```sh
+          sudo brew install socat
+          udptunnel/forward_udp.sh udptunnel/udp_forwarding.conf &
+          # If you want to stop, run the following command
+          # udptunnel/forward_udp.sh udptunnel/udp_forwarding.conf kill
+          ```
 
-        ```sh
-        COMPOSE_PROFILES=udptunnel docker compose up -d
-        ```
+       - for container
 
-5. Register to the OS DNS.
-   - 🍎 for Mac.
+          ```sh
+          COMPOSE_PROFILES=udptunnel docker compose up -d --build
+          ```
+
+          Also, you can add `COMPOSE_PROFILES=udptunnel` to `.env`
+
+     - Add to resolver for dnsmasq
 
         ```sh
         sudo mkdir /etc/resolver
@@ -118,16 +227,63 @@ class YourProj2 {
         vi /etc/resolver/test
         ```
 
-     - `/etc/resolver/test` contents.
+       - `/etc/resolver/test` contents.
+
+          ```ini
+          options timeout:1
+          options attempts:2
+          options use-vc
+          nameserver 127.0.0.1
+          ```
+
+     </details>
+   - <details><summary>💠 for Win(WSL2)</summary>
+
+     1. set and run wsl2/wsl_startup.bat as administrator on host Windows.
+        This bat does the following:
+        - set static ip address to WSL. (IMPORTANT here)
+        - start dockerd
+        - start sshd
+        - port forwarding for ssh
+
+        register wsl_startup.bat in task scheduler to run as administrator at startup.
+        (copy these like `cp wsl2/ to /mnt/c/Users/$USER` first)
+     2. ❓ check command is `ping 192.168.100.100`.(This is the DNSMASQ_ADDR.) both Win and WSL.
+     3. Change adapter settings.
+        Set "Use the following DNS server addresses:"
+
+          - Preferred DNS server: 192.168.100.100 (This is the DNSMASQ_ADDR.)
+          - Alternate DNS server: 1.1.1.1 (This is your real DNS.)
+     4. For WSL(in WSL)
+
+        create `/etc/wsl.conf` (sudo vi /etc/wsl.conf)
 
         ```ini
-        options timeout:1
-        options attempts:2
-        options use-vc
+        [network]
+        generateResolvConf = false
+        ```
+
+        rm `/etc/resolv.conf` and create `/etc/resolv.conf` using sudo.
+
+        ```conf
+        nameserver 127.0.0.1
+        # This is your real DNS
+        nameserver 1.1.1.1
+        ```
+
+     </details>
+   - <details><summary>🐧 for Ubuntu</summary>
+
+     - Add to /etc/resolv.conf
+
+        ```conf
+        # add following line first
         nameserver 127.0.0.1
         ```
 
-6. ❓ Check.
+     </details>
+
+7. ❓ check.
    - Access <https://traefik.dev.test>
    - If you see the Traefik dashboard, success!🎉
 
@@ -144,7 +300,7 @@ IPアドレスの部分は自分のマシンのものに置き換えてくださ
 services:
   dnsmasq:
     environment:
-      DNSMASQ_ADDR: 10.0.0.101
+      DNSMASQ_ADDR: 10.0.0.1
 ```
 
 ### Self CA / Self signed certificates
@@ -214,18 +370,22 @@ DNSMASQ_{DOMAIN,ADDR}_1とか追加で指定したときも、OSのresolverに�
     environment:
       # Dnsmasqの起動引数
       # この他に -A "/$DNSMASQ_DOMAIN/DNSMASK_ADDR -A ...が付与される
-      DNSMASQ_ARGS: -b -D -h -k -n -R -u root -8 -
+      DNSMASQ_ARGS: -h -k -n -R -u root -8 -
       # メインの変換ドメイン
       DNSMASQ_DOMAIN: .test
       # メインの変換IPアドレス(コンテナから使用するため、ホストIPアドレスにすべき)
-      DNSMASQ_ADDR: 127.0.0.1
-      # 追加の変換ドメイン
-      DNSMASQ_DOMAIN_1:
-      # 追加の変換IPアドレス
-      DNSMASQ_ADDR_1:
+      DNSMASQ_ADDR: 192.168.100.100
       # 以降も連番で指定可能
       # 空文字れつもしくは未定義に遭遇するとそこで終了
       # "-"ハイフンだけならその番号はスキップして、次の番号を処理
+      DNSMASQ_DOMAIN_1:
+      DNSMASQ_ADDR_1:
+      # 通常使うDNSサーバー
+      DNSMASQ_SERVER: 1.1.1.1
+      # 以降も連番で指定可能
+      # 空文字れつもしくは未定義に遭遇するとそこで終了
+      # "-"ハイフンだけならその番号はスキップして、次の番号を処理
+      DNSMASQ_SERVER_1:
 ```
 
 ## udptunnel

@@ -85,8 +85,8 @@ services:
   traefik:
     image: traefik
     restart: unless-stopped
-    env_file:
-      - .env
+    environment:
+      DOMAIN: ${DOMAIN:-.dev.test}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik:/etc/traefik:ro

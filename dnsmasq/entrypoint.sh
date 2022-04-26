@@ -64,6 +64,29 @@ if ${command_is_dnsmasq}; then
         done
         DNSMASQ_ARGS="${DNSMASQ_ARGS} ${address_args}"
     fi
+    skip_server=false
+    if [ -z "${DNSMASQ_SERVER}" ]; then
+        echo "DNSMASQ_SERVER environment variable is empty so server not added."
+        skip_server=true
+    fi
+    if ! ${skip_server}; then
+        server_args="-S ${DNSMASQ_SERVER}"
+        sequence_number=1
+        while true; do
+            sequence_server=$(eval "printf $(printf \"\${DNSMASQ_SERVER_${sequence_number}-\"\"}\")")
+            if [ -z ${sequence_server} ]; then
+                # 未定義なので終了
+                break
+            fi
+            if [ "${sequence_server}" = "-" ]; then
+                echo "skip sequence number ${sequence_number} because DNSMASQ_SERVER_${sequence_number} is '-'."
+            else
+                server_args="${server_args} -A ${sequence_server}"
+            fi
+            sequence_number=$((sequence_number+1))
+        done
+        DNSMASQ_ARGS="${DNSMASQ_ARGS} ${server_args}"
+    fi
     set -- dnsmasq "$DNSMASQ_ARGS" "$@"
     echo "$@"
 fi
