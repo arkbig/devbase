@@ -80,7 +80,7 @@ services:
     volumes:
       - ./sslcert/.certs/:/certs/
     profiles:
-      - one-shot
+      - sslcert
 
   traefik:
     image: traefik
