@@ -4,7 +4,7 @@ call "%~dp0wsl_env.bat"
 
 wsl -e ps
 wsl -l --running
-if not %errorlevel%==0 exit /b %errorlevel%
+@if not %errorlevel%==0 exit /b %errorlevel%
 
 call "%~dp0wsl_assign_ip.bat"
 
