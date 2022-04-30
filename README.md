@@ -1,9 +1,16 @@
 # devbase
 
-Development base environment using Docker containers. Using Traefik with TLS, Dnsmasq, Exim4 and Mailhog.
+Development base environment stack using Docker containers. Using Traefik with TLS, Dnsmasq, Exim4 and Mailhog.
 
 I have confirmed that it works with Colima on macOS and WSL2 on Windows 10.
 It will probably work on Linux as well.
+
+## Key feutures
+
+- The combination of Traefik and Dnsmasq allows switching the access container by hostname instead of port number.
+- You can use Mailhog to receive even dummy email addresses.
+- By using exim4, only specific domains can be forwarded to regular SMTP.
+- Create a self certification authority and a self certificate with openssl to enable https access.
 
 The software used is as follows
 
@@ -61,6 +68,8 @@ class YourProj2 {
 }
 ```
 
+> ___NOTE:___ Sorry, my native language is Japanese.
+
 ## Install
 
 1. clone this repositoy. (run on WSL2 if Win)
@@ -95,7 +104,7 @@ class YourProj2 {
         - DNSMASQ_ADDR is a host IP address that can be seen in `ifconfig`.
         - CONTAINER_{UID,GID} are id that can be seel in `id`.
      </details>
-   - <details><summary>💠 for Win(WSL2)</summary>
+   - <details><summary>🪟 for Win(WSL2)</summary>
 
      1. configure compose file.
         create `compose.override.yaml`
@@ -165,7 +174,7 @@ class YourProj2 {
 4. register sslcert/.certs/ca-My-Test.cer to the OS
    - 🍎 for Mac
      - To Keychain Access. (Open the .cer file in the finder.)
-   - 💠 for Win(WSL2)
+   - 🪟 for Win(WSL2)
      - To MMC. (Open the .cer file in the explorer.)
        - Certificate store is "Trusted Root Certification Authorities".
      - Also installed in WSL2 (see Ubuntu)
@@ -237,7 +246,7 @@ class YourProj2 {
           ```
 
      </details>
-   - <details><summary>💠 for Win(WSL2)</summary>
+   - <details><summary>🪟 for Win(WSL2)</summary>
 
      1. set and run wsl2/wsl_startup.bat as administrator on host Windows.
         This bat does the following:
