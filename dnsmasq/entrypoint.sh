@@ -81,7 +81,7 @@ if ${command_is_dnsmasq}; then
             if [ "${sequence_server}" = "-" ]; then
                 echo "skip sequence number ${sequence_number} because DNSMASQ_SERVER_${sequence_number} is '-'."
             else
-                server_args="${server_args} -A ${sequence_server}"
+                server_args="${server_args} -S ${sequence_server}"
             fi
             sequence_number=$((sequence_number+1))
         done
