@@ -19,37 +19,37 @@ fi
 
 # 終了時に子プロセスも一緒に終了させる
 exit_children2 () {
-	oid=$$
-	IFS='
-	'
-	for line in $(ps -o pid,ppid); do
-		pid=$(echo "$line" | awk '{print $1}')
-		ppid=$(echo "$line" | awk '{print $2}')
-		if [ "$ppid" != "$oid" ]; then
-			continue
-		fi
-		ps $pid > /dev/null
-		if [ $? -ne 0 ]; then
-			continue
-		fi
-		kill $pid
-	done
-	exit
+    oid=$$
+    IFS='
+    '
+    for line in $(ps -o pid,ppid); do
+        pid=$(echo "$line" | awk '{print $1}')
+        ppid=$(echo "$line" | awk '{print $2}')
+        if [ "$ppid" != "$oid" ]; then
+            continue
+        fi
+        ps $pid > /dev/null
+        if [ $? -ne 0 ]; then
+            continue
+        fi
+        kill $pid
+    done
+    exit
 }
 trap 'exit_children2' 1 2 3 15
 
 retry_count=10
 err_coutinue=0
 while true; do
-	$@ &
-	wait $! && :
-	err_code=$?
-	if [ $err_code -ne 0 ]; then
-		err_coutinue=$((err_coutinue+1))
-		if [ $err_coutinue -gt $retry_count ]; then
-			exit $err_code
-		fi
+    $@ &
+    wait $! && :
+    err_code=$?
+    if [ $err_code -ne 0 ]; then
+        err_coutinue=$((err_coutinue+1))
+        if [ $err_coutinue -gt $retry_count ]; then
+            exit $err_code
+        fi
     else
         err_coutinue=0
-	fi
+    fi
 done
