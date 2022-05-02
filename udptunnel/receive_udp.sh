@@ -71,8 +71,8 @@ while read line; do
     udp_port=$(printf $line | cut -f 2 -d : -s)
     tcp_port=$(printf $line | cut -f 3 -d : -s)
     if [ -z "$tcp_port" ]; then
-        tcp_port=$udp_host
-        udp_port=$dest_port
+        tcp_port=$udp_port
+        udp_port=$dest_host
         dest_host=127.0.0.1
     fi
     if [ -n "$udp_port" ] && [ -n "$tcp_port" ]; then
