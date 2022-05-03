@@ -42,8 +42,7 @@ fi
 # 終了時に子プロセスも一緒に終了させる
 exit_children () {
     oid=$$
-    IFS='
-    '
+    IFS=$(printf '\n_'); IFS=${IFS%_}
     for line in $(ps -o pid,ppid); do
         pid=$(echo "$line" | awk '{print $1}')
         ppid=$(echo "$line" | awk '{print $2}')

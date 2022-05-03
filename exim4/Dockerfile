@@ -8,8 +8,8 @@ RUN set -eux \
  && rm -rf /var/lib/apt/lists/*
 
 # Debian-eximユーザー&グループが作られて、デーモン設定で起動するとそれが使われる
-# ENV CONTAINER_UID=${CONTAINER_UID:-501}
-# ENV CONTAINER_GID=${CONTAINER_GID:-20}
+# ENV CONTAINER_UID=${CONTAINER_UID:-1000}
+# ENV CONTAINER_GID=${CONTAINER_GID:-1000}
 # RUN groupadd -g ${CONTAINER_GID} -o smtpstaff \
 #  && useradd -g smtpstaff -m -o -u ${CONTAINER_UID} smtpstaff
 # WORKDIR /home/smtpstaff/

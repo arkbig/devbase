@@ -9,8 +9,8 @@ RUN set -eux \
  && rm -rf /var/lib/apt/lists/*
 
 # 権限の問題があり、rootで実行するので省略
-# ENV CONTAINER_UID=${CONTAINER_UID:-501}
-# ENV CONTAINER_GID=${CONTAINER_GID:-20}
+# ENV CONTAINER_UID=${CONTAINER_UID:-1000}
+# ENV CONTAINER_GID=${CONTAINER_GID:-1000}
 # RUN groupadd -g ${CONTAINER_GID} -o dnsstaff \
 #  && useradd -g dnsstaff -m -o -u ${CONTAINER_UID} dnsstaff
 # WORKDIR /home/dnsstaff/

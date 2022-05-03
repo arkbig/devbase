@@ -9,8 +9,11 @@ services:
         http_proxy: ${http_proxy-}
         https_proxy: ${https_proxy-}
     restart: unless-stopped
-    # environment:
-    #   DNSMASQ_ADDR: your-host-ip
+    environment:
+      # This is your host or wsl2 eth0 ip address.
+      DNSMASQ_ADDR: ${DNSMASQ_ADDR:?Please set your ip address}
+      # This is your DNS server.
+      DNSMASQ_SERVER: ${DNSMASQ_SERVER-1.1.1.1}
     ports:
       - 127.0.0.1::53
       - 127.0.0.1::53/udp
@@ -34,9 +37,9 @@ services:
         https_proxy: ${https_proxy-}
     init: true
     restart: unless-stopped
-    # environment:
-    #   EXIM4_RELAY_DOMAIN: your-company.com
-    #   EXIM4_RELAY_ADDR: smtp.your-company.com
+    environment:
+      EXIM4_RELAY_DOMAIN: ${EXIM4_RELAY_DOMAIN-}
+      EXIM4_RELAY_ADDR: ${EXIM4_RELAY_ADDR-}
     ports:
       - 127.0.0.1::587
     labels:
@@ -77,6 +80,10 @@ services:
         no_proxy: ${no_proxy-}
         http_proxy: ${http_proxy-}
         https_proxy: ${https_proxy-}
+    environment:
+      # These are your id.
+      CONTAINER_UID: ${CONTAINER_UID:?Please set your uid}
+      CONTAINER_GID: ${CONTAINER_GID:?Please set your gid}
     volumes:
       - ./sslcert/.certs/:/certs/
     profiles:
@@ -103,6 +110,10 @@ services:
         no_proxy: ${no_proxy-}
         http_proxy: ${http_proxy-}
         https_proxy: ${https_proxy-}
+    environment:
+      # These are your id.
+      CONTAINER_UID: ${CONTAINER_UID:?Please set your uid}
+      CONTAINER_GID: ${CONTAINER_GID:?Please set your gid}
     volumes:
       - ./udptunnel/udp_forwarding.conf:/home/udpstaff/udp_forwarding.conf
     # 他のcompose(network)にも送るかもしれないので、hostにしておく
