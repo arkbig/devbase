@@ -1,15 +1,17 @@
 setlocal
-call "%~dp0.wsl_env.bat"
 call "%~dp0wsl_env.bat"
 
+@REM WSL2起動待ち
 wsl -e ps
 wsl -l --running
 @if not %errorlevel%==0 exit /b %errorlevel%
 
-call "%~dp0wsl_assign_ip.bat"
+@REM スタートアップ対象を処理
+for %%b in (%WSL2_STARTUP_LIST%) do (
+    call "%~dp0%%b"
+)
 
-call "%~dp0wsl_dockerd.bat"
-
-call "%~dp0port_forwarding.bat"
-
-call "%~dp0wsl_sshd.bat"
+@REM ポートフォワーディング対象を処理
+for %%p in (%WSL2_PORT_FORWARDING_LIST%) do (
+    call "~dp0wsl_port_forwarding.bat" %%p
+)
