@@ -3,7 +3,7 @@
 @REM シェル環境変数 > .wsl_env.bat > wsl_env.bat の順に優先されます。
 
 @REM 個人設定を優先する
-@if "%~n0"!=".wsl_env.bat" (
+@if not "%~nx0"==".wsl_env.bat" (
     if exist "%~dp0.wsl_env.bat" (
         call "%~dp0.wsl_env.bat"
     )
@@ -34,6 +34,7 @@
         wsl_assign_ip.bat ^
         wsl_dockerd.bat ^
         wsl_sshd.bat ^
+        ;
 )
 
 @REM ポートフォワーディング対象（ポート番号をスペース区切りで指定）
