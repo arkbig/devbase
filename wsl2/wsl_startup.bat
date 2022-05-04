@@ -1,10 +1,14 @@
+@echo off
 setlocal
 call "%~dp0wsl_env.bat"
 
-@REM WSL2起動待ち
+REM WSL2起動待ち代わり
 wsl -e ps
+
+@echo on
+
 wsl -l --running
-@if not %errorlevel%==0 exit /b %errorlevel%
+if not %errorlevel%==0 exit /b %errorlevel%
 
 @REM スタートアップ対象を処理
 @for %%b in (%WSL2_STARTUP_LIST%) do (

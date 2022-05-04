@@ -1,17 +1,18 @@
+@echo off
 setlocal enabledelayedexpansion
 call "%~dp0wsl_env.bat"
 
 goto begin
 :usage
-@echo "Usage:"
-@echo "%~n0 [opts] <port#>"
-@echo ""
-@echo "Options:"
-@echo "-r --rm   Remove port forwarding settings only (not set new)."
+echo "Usage:"
+echo "%~n0 [opts] <port#>"
+echo ""
+echo "Options:"
+echo "-r --rm   Remove port forwarding settings only (not set new)."
 exit /b 1
 
 :begin
-@REM 引数チェック
+REM 引数チェック
 set rmflag=
 set portno=
 for %%a in (%*) do (
@@ -29,6 +30,7 @@ if "%portno%"=="" goto usage
 set /a portno=%portno% + 1 - 1
 if "%portno%"=="0" goto usage
 
+@echo on
 REM 古い設定削除
 netsh interface portproxy delete v4tov4 listenport=%portno%
 netsh advfirewall firewall delete rule name="WSL port %portno%"
