@@ -12,6 +12,5 @@ netsh interface ip add address "vEthernet (WSL)" %WSL2_GATEWAY% %WSL2_GATEWAY_SU
 
 netsh interface ipv4 set dns "vEthernet (WSL)" static %DNSMASQ_ADDR% none no
 @if errorlevel 1 pause
-
 netsh interface ipv4 add dns "vEthernet (WSL)" %DNSMASQ_SERVER% 2 no
 @if errorlevel 1 pause
