@@ -12,16 +12,18 @@ export IFS LC_ALL=C LANG=C PATH
 # end of 定型文
 #--------------------------------------------------------------------
 
+: "${no_proxy:=''}"
+
 # For container
 docker_conf="$HOME/.docker/config.json"
-echo $docker_conf
-sed -n "s/\"noProxy\":.*/\"noProxy\": \"$no_proxy\",/p" $docker_conf
-sed -i "s/\"noProxy\":.*/\"noProxy\": \"$no_proxy\",/"  $docker_conf
+echo "${docker_conf}"
+sed -n "s/\"noProxy\":.*/\"noProxy\": \"${no_proxy}\",/p" "${docker_conf}"
+sed -i "s/\"noProxy\":.*/\"noProxy\": \"${no_proxy}\",/"  "${docker_conf}"
 
 # For daemon
 dockerd_conf="/etc/systemd/system/docker.service.d/override.conf"
-echo $dockerd_conf
-sudo sed -n "s/'no_proxy=.*'/'no_proxy=$no_proxy'/p" $dockerd_conf
-sudo sed -i "s/'no_proxy=.*'/'no_proxy=$no_proxy'/"  $dockerd_conf
+echo ${dockerd_conf}
+sudo sed -n "s/'no_proxy=.*'/'no_proxy=${no_proxy}'/p" "${dockerd_conf}"
+sudo sed -i "s/'no_proxy=.*'/'no_proxy=${no_proxy}'/"  "${dockerd_conf}"
 sudo systemctl daemon-reload
 sudo systemctl restart docker

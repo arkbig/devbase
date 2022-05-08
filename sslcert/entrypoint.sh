@@ -16,17 +16,17 @@ export IFS LC_ALL=C LANG=C PATH
 uid=$(stat -c "%u" .)
 gid=$(stat -c "%g" .)
 ug_name=castaff
-if [ ${CONTAINER_GID} -ne ${gid} ]; then
-    groupmod -g ${CONTAINER_GID} -o ${ug_name}
-    chgrp -R ${CONTAINER_GID} .
+if [ "${CONTAINER_GID}" != "${gid}" ]; then
+    groupmod -g "${CONTAINER_GID}" -o "${ug_name}"
+    chgrp -R "${CONTAINER_GID}" .
 fi
-if [ ${CONTAINER_UID} -ne ${uid} ]; then
-    usermod -g ${ug_name} -o -u ${CONTAINER_UID} ${ug_name}
+if [ "${CONTAINER_UID}" != "${uid}" ]; then
+    usermod -g "${ug_name}" -o -u "${CONTAINER_UID}" "${ug_name}"
 fi
 
-if [ $(id -u) -eq ${CONTAINER_UID} ]; then
-    exec $@
+if [ "$(id -u)" = "${CONTAINER_UID}" ]; then
+    exec "$@"
 else
     # ユーザー変更してコマンド実行
-    exec /usr/sbin/gosu ${ug_name} $@
+    exec /usr/sbin/gosu "${ug_name}" "$@"
 fi
