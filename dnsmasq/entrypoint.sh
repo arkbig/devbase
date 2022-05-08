@@ -7,7 +7,8 @@ set -eu
 # 環境に影響を受けないようにしておく
 umask 0022
 # PATH='/usr/bin:/bin'
-IFS=$(printf ' \t\n_'); IFS=${IFS%_}
+IFS=$(printf ' \t\n_')
+IFS=${IFS%_}
 export IFS LC_ALL=C LANG=C PATH
 # end of 定型文
 #--------------------------------------------------------------------
@@ -60,7 +61,7 @@ if ${command_is_dnsmasq}; then
             else
                 address_args="${address_args} -A /${sequence_domain}/${sequence_addr}"
             fi
-            sequence_number=$((sequence_number+1))
+            sequence_number=$((sequence_number + 1))
         done
         DNSMASQ_ARGS="${DNSMASQ_ARGS} ${address_args}"
     fi
@@ -83,7 +84,7 @@ if ${command_is_dnsmasq}; then
             else
                 server_args="${server_args} -S ${sequence_server}"
             fi
-            sequence_number=$((sequence_number+1))
+            sequence_number=$((sequence_number + 1))
         done
         DNSMASQ_ARGS="${DNSMASQ_ARGS} ${server_args}"
     fi

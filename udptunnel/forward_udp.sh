@@ -7,7 +7,8 @@ set -eu
 # 環境に影響を受けないようにしておく
 umask 0022
 # PATH='/usr/bin:/bin'
-IFS=$(printf ' \t\n_'); IFS=${IFS%_}
+IFS=$(printf ' \t\n_')
+IFS=${IFS%_}
 export IFS LC_ALL=C LANG=C PATH
 # end of 定型文
 #--------------------------------------------------------------------
@@ -18,8 +19,14 @@ if [ -z "$1" ]; then
     exit 1
 else
     # 後でkillするとき検索できるようにフルパスにする
-    self_sh=$(cd "$(dirname "$0")"; pwd)/$(basename "$0")
-    read_from=$(cd "$(dirname "$1")"; pwd)/$(basename "$1")
+    self_sh=$(
+        cd "$(dirname "$0")"
+        pwd
+    )/$(basename "$0")
+    read_from=$(
+        cd "$(dirname "$1")"
+        pwd
+    )/$(basename "$1")
     if [ "${self_sh}" != "$0" ] || [ "${read_from}" != "$1" ]; then
         shift
         exec "${self_sh}" "${read_from}" "$@"
@@ -40,11 +47,12 @@ if [ $# -ge 2 ]; then
 fi
 
 # 終了時に子プロセスも一緒に終了させる
-exit_children () {
+exit_children() {
     oid=$$
-    IFS=$(printf '\n_'); IFS=${IFS%_}
+    IFS=$(printf '\n_')
+    IFS=${IFS%_}
     for pid in $(pgrep -P "${oid}"); do
-        if ! ps "${pid}" > /dev/null; then
+        if ! ps "${pid}" >/dev/null; then
             continue
         fi
         kill "${pid}"
@@ -53,8 +61,10 @@ exit_children () {
 }
 trap 'exit_children' 1 2 3 15
 
-
-loop_cmd=$(cd "$(dirname "$0")"; pwd)/loop_cmd.sh
+loop_cmd=$(
+    cd "$(dirname "$0")"
+    pwd
+)/loop_cmd.sh
 while read -r line; do
     # "#〜"はコメント
     line=$(printf "%s" "${line}" | sed -e 's/#.*//')
@@ -75,7 +85,7 @@ while read -r line; do
         # shellcheck disable=SC2086
         "${loop_cmd}" ${cmd} &
     fi
-done < "${read_from}"
+done <"${read_from}"
 
 # 子プロセスの終了を待つ
 wait

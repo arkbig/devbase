@@ -7,7 +7,8 @@ set -eu
 # 環境に影響を受けないようにしておく
 umask 0022
 # PATH='/usr/bin:/bin'
-IFS=$(printf ' \t\n_'); IFS=${IFS%_}
+IFS=$(printf ' \t\n_')
+IFS=${IFS%_}
 export IFS LC_ALL=C LANG=C PATH
 # end of 定型文
 #--------------------------------------------------------------------

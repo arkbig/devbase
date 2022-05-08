@@ -7,7 +7,8 @@ set -eu
 # 環境に影響を受けないようにしておく
 umask 0022
 # PATH='/usr/bin:/bin'
-IFS=$(printf ' \t\n_'); IFS=${IFS%_}
+IFS=$(printf ' \t\n_')
+IFS=${IFS%_}
 export IFS LC_ALL=C LANG=C PATH
 # end of 定型文
 #--------------------------------------------------------------------
@@ -18,11 +19,12 @@ if [ -z "$1" ]; then
 fi
 
 # 終了時に子プロセスも一緒に終了させる
-exit_children () {
+exit_children() {
     oid=$$
-    IFS=$(printf '\n_'); IFS=${IFS%_}
+    IFS=$(printf '\n_')
+    IFS=${IFS%_}
     for pid in $(pgrep -P "${oid}"); do
-        if ! ps "${pid}" > /dev/null; then
+        if ! ps "${pid}" >/dev/null; then
             continue
         fi
         kill "${pid}"
@@ -38,7 +40,7 @@ while true; do
     "$@" &
     wait $! || err_code=$?
     if [ $err_code -ne 0 ]; then
-        err_coutinue=$((err_coutinue+1))
+        err_coutinue=$((err_coutinue + 1))
         if [ $err_coutinue -gt $retry_count ]; then
             exit $err_code
         fi

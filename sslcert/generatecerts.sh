@@ -7,7 +7,8 @@ set -eu
 # 環境に影響を受けないようにしておく
 umask 0022
 # PATH='/usr/bin:/bin'
-IFS=$(printf ' \t\n_'); IFS=${IFS%_}
+IFS=$(printf ' \t\n_')
+IFS=${IFS%_}
 export IFS LC_ALL=C LANG=C PATH
 # end of 定型文
 #--------------------------------------------------------------------
@@ -26,7 +27,7 @@ ca_cn_filebody=$(echo "ca-${CA_CN}" | sed -e 's@[ \\/:*?"<>|]@-@g')
 # CA_SUBJはオプションで、/C=国コード/ST=県/O=組織名/OU=部門名などが指定できます。(/CN=${CA_CN}が自動付与されます)
 : "${CA_SUBJ:="/CN=${CA_CN}"}"
 case "${CA_SUBJ%/CN=*}" in
-    "${CA_SUBJ}" ) CA_SUBJ=${CA_SUBJ}/CN=${CA_CN}
+"${CA_SUBJ}") CA_SUBJ=${CA_SUBJ}/CN=${CA_CN} ;;
 esac
 # 自己証明書の設定
 : "${SSL_CN:="dev.test"}" # 今の時代あまり意味はない
@@ -37,14 +38,14 @@ esac
 ssl_cn_filebody=$(echo "ssl-${SSL_CN}" | sed -e 's@[ \\/:*?"<>|]@-@g')
 : "${SSL_FILEBODY:=${ssl_cn_filebody}}"
 : "${SSL_CERT:="${SSL_FILEBODY}.cer"}" # これをサーバーに設定（公開鍵）
-: "${SSL_KEY:="${SSL_FILEBODY}.key"}"   # これもサーバーに設定（秘密鍵）
+: "${SSL_KEY:="${SSL_FILEBODY}.key"}"  # これもサーバーに設定（秘密鍵）
 : "${SSL_CSR:="${SSL_FILEBODY}.csr"}"
 : "${SSL_PASS=""}" # default is no password
 : "${SSL_SERIAL:="${SSL_FILEBODY}.srl"}"
 # SSL_SUBJはオプションで、/C=国コード/ST=県/O=組織名/OU=部門名などが指定できます。(/CN=${SSL_CN}が自動付与されます)
 : "${SSL_SUBJ:="/CN=${SSL_CN}"}"
 case "${SSL_SUBJ%/CN=*}" in
-    "${SSL_SUBJ}" ) : SSL_SUBJ="${SSL_SUBJ}/CN=${SSL_CN}"
+"${SSL_SUBJ}") : SSL_SUBJ="${SSL_SUBJ}/CN=${SSL_CN}" ;;
 esac
 # end of ユーザー設定のための環境変数
 #--------------------------------------------------------------------
@@ -84,7 +85,7 @@ else
     chmod 400 "${CERTS_OUT}/${CA_KEY}"
 fi
 
-# 認証局の自己証明書作成 -- 
+# 認証局の自己証明書作成 --
 if [ -e "${CERTS_OUT}/${CA_CERT}" ]; then
     echo "<---- Using existing CA Cert ${CA_CERT} ---->"
 else
@@ -137,7 +138,7 @@ if [ -e "${CERTS_OUT}/${SSL_SERIAL}" ]; then
     echo "<---- Using existing SSL Serial ${SSL_SERIAL} ---->"
 else
     echo "<==== Generating new SSL Serial ${SSL_SERIAL} ====>"
-    echo 00 > "${CERTS_OUT}/${SSL_SERIAL}"
+    echo 00 >"${CERTS_OUT}/${SSL_SERIAL}"
 fi
 
 # CA署名証明書作成
@@ -150,6 +151,6 @@ else
 fi
 
 # 確認 - 余計なのも出力される...-nocert効かない？
-openssl x509 -text -in "${CERTS_OUT}/${SSL_CERT}" -noout -nocert -issuer -enddate -subject -ext subjectAltName 
+openssl x509 -text -in "${CERTS_OUT}/${SSL_CERT}" -noout -nocert -issuer -enddate -subject -ext subjectAltName
 # end of 証明書
 #--------------------------------------------------------------------
