@@ -108,7 +108,7 @@ class OtherServices {
 
      </details>
 
-   - <details><summary>🪟 for Win(WSL2)</summary>
+   - <details><summary>🪟 for Windows(WSL2)</summary>
 
      1. CONTAINER_UID / CONTAINER_GID
 
@@ -152,7 +152,7 @@ class OtherServices {
         set if you want.
         It is also possible to specify multiple composites with sequential numbers such as \*\_1,\*\_2 in compose.override.yaml.
 
-    </details>
+     </details>
 
 3. create certificates.
 
@@ -164,13 +164,21 @@ class OtherServices {
 
 4. register sslcert/.certs/ca-My-Test.cer to the OS
 
-   - 🍎 for Mac
+   - <details><summary>🍎 for Mac</summary>
+
      - To Keychain Access. (Open the .cer file in the finder.)
-   - 🪟 for Win(WSL2)
+
+     </details>
+
+   - <details><summary>🪟 for Windows(WSL2)</summary>
+
      - To MMC. (Open the .cer file in the explorer.)
        - Certificate store is "Trusted Root Certification Authorities".
      - Also installed in WSL2 (see Ubuntu)
-   - 🐧 for Ubuntu
+
+     </details>
+
+   - <details><summary>🐧 for Ubuntu</summary>
 
      - copy & add
 
@@ -180,6 +188,8 @@ class OtherServices {
        sudo echo "self/ca-My-Test.cer" >> /etc/ca-certificates.conf
        sudo update-ca-certificates
        ```
+
+     </details>
 
 5. run compose.
 
