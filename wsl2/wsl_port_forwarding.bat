@@ -27,10 +27,14 @@ for %%a in (%*) do (
     )
 )
 if "%portno%"=="" goto usage
-set /a portno=%portno% + 1 - 1
-if "%portno%"=="0" goto usage
+REM 数字？
+cd >nul
+set /a portno=%portno%
+if not %errorlevel% == 0 goto usage
+if %portno% leq 0 goto usage
 
 @echo on
+
 REM 古い設定削除
 netsh interface portproxy delete v4tov4 listenport=%portno%
 netsh advfirewall firewall delete rule name="WSL port %portno%"
