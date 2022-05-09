@@ -24,8 +24,6 @@ entrypoints:
       tls: true # TraefikでTLS終端
   smtps:
     address: :587
-  mongodb:
-    address: :27017
 
 log:
   level: DEBUG
@@ -47,7 +45,6 @@ providers:
     # exposedbydefault: false
     # compose起動ならNameは"compose.yamlのservices:に指定した名前"-${COMPOSE_PROJECT_NAME}
     defaultrule: Host(`{{ normalize .Name }}{{ env "DOMAIN" }}`)
-
 # Prometheusを使う場合
 # metrics:
 #   prometheus:
