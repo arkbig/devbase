@@ -18,31 +18,25 @@ if [ -z "$1" ]; then
 fi
 
 # 終了時に子プロセスも一緒に終了させる
-exit_children2 () {
+exit_children () {
     oid=$$
     IFS=$(printf '\n_'); IFS=${IFS%_}
-    for line in $(ps -o pid,ppid); do
-        pid=$(echo "$line" | awk '{print $1}')
-        ppid=$(echo "$line" | awk '{print $2}')
-        if [ "$ppid" != "$oid" ]; then
+    for pid in $(pgrep -P "${oid}"); do
+        if ! ps "${pid}" > /dev/null; then
             continue
         fi
-        ps $pid > /dev/null
-        if [ $? -ne 0 ]; then
-            continue
-        fi
-        kill $pid
+        kill "${pid}"
     done
     exit
 }
-trap 'exit_children2' 1 2 3 15
+trap 'exit_children' 1 2 3 15
 
 retry_count=10
 err_coutinue=0
 while true; do
-    $@ &
-    wait $! && :
-    err_code=$?
+    err_code=0
+    "$@" &
+    wait $! || err_code=$?
     if [ $err_code -ne 0 ]; then
         err_coutinue=$((err_coutinue+1))
         if [ $err_coutinue -gt $retry_count ]; then

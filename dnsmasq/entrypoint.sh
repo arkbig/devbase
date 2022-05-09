@@ -17,12 +17,12 @@ export IFS LC_ALL=C LANG=C PATH
 # uid=$(stat -c "%u" .)
 # gid=$(stat -c "%g" .)
 # ug_name=dnsstaff
-# if [ ${CONTAINER_GID} -ne ${gid} ]; then
-#     groupmod -g ${CONTAINER_GID} -o ${ug_name}
-#     chgrp -R ${CONTAINER_GID} .
+# if [ "${CONTAINER_GID}" != "${gid}" ]; then
+#     groupmod -g "${CONTAINER_GID}" -o "${ug_name}"
+#     chgrp -R "${CONTAINER_GID}" .
 # fi
-# if [ ${CONTAINER_UID} -ne ${uid} ]; then
-#     usermod -g ${ug_name} -o -u ${CONTAINER_UID} ${ug_name}
+# if [ "${CONTAINER_UID}" != "${uid}" ]; then
+#     usermod -g "${ug_name}" -o -u "${CONTAINER_UID}" "${ug_name}"
 # fi
 
 # dnsmasqコマンドなら引数を追加する
@@ -49,9 +49,9 @@ if ${command_is_dnsmasq}; then
         address_args="-A /${DNSMASQ_DOMAIN}/${DNSMASQ_ADDR}"
         sequence_number=1
         while true; do
-            sequence_domain=$(eval "printf $(printf \"\${DNSMASQ_DOMAIN_${sequence_number}-\"\"}\")")
-            sequence_addr=$(eval "printf $(printf \"\${DNSMASQ_ADDR_${sequence_number}-\"\"}\")")
-            if [ -z ${sequence_domain} ] || [ -z ${sequence_addr} ]; then
+            sequence_domain=$(eval "printf $(printf "%s" "\${DNSMASQ_DOMAIN_${sequence_number}-\"\"}")")
+            sequence_addr=$(eval "printf $(printf "%s" "\${DNSMASQ_ADDR_${sequence_number}-\"\"}")")
+            if [ -z "${sequence_domain}" ] || [ -z "${sequence_addr}" ]; then
                 # 未定義なので終了
                 break
             fi
@@ -73,8 +73,8 @@ if ${command_is_dnsmasq}; then
         server_args="-S ${DNSMASQ_SERVER}"
         sequence_number=1
         while true; do
-            sequence_server=$(eval "printf $(printf \"\${DNSMASQ_SERVER_${sequence_number}-\"\"}\")")
-            if [ -z ${sequence_server} ]; then
+            sequence_server=$(eval "printf $(printf "%s" "\${DNSMASQ_SERVER_${sequence_number}-\"\"}")")
+            if [ -z "${sequence_server}" ]; then
                 # 未定義なので終了
                 break
             fi
@@ -87,15 +87,16 @@ if ${command_is_dnsmasq}; then
         done
         DNSMASQ_ARGS="${DNSMASQ_ARGS} ${server_args}"
     fi
-    set -- dnsmasq "$DNSMASQ_ARGS" "$@"
+    # shellcheck disable=SC2086
+    set -- dnsmasq ${DNSMASQ_ARGS} "$@"
     echo "$@"
 fi
 
 # 権限の問題があり、rootで実行するので省略
-# if [ $(id -u) -eq ${CONTAINER_UID} ]; then
-#     exec $@
+# if [ "$(id -u)" = "${CONTAINER_UID}" ]; then
+#     exec "$@"
 # else
 #     # ユーザー変更してコマンド実行
-#     exec /usr/sbin/gosu ${ug_name} $@
+#     exec /usr/sbin/gosu "${ug_name}" "$@"
 # fi
-exec $@
+exec "$@"

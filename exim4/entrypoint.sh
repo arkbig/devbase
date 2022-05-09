@@ -17,12 +17,12 @@ export IFS LC_ALL=C LANG=C PATH
 # uid=$(stat -c "%u" .)
 # gid=$(stat -c "%g" .)
 # ug_name=smtpstaff
-# if [ ${CONTAINER_GID} -ne ${gid} ]; then
-#     groupmod -g ${CONTAINER_GID} -o ${ug_name}
-#     chgrp -R ${CONTAINER_GID} .
+# if [ "${CONTAINER_GID}" != "${gid}" ]; then
+#     groupmod -g "${CONTAINER_GID}" -o "${ug_name}"
+#     chgrp -R "${CONTAINER_GID}" .
 # fi
-# if [ ${CONTAINER_UID} -ne ${uid} ]; then
-#     usermod -g ${ug_name} -o -u ${CONTAINER_UID} ${ug_name}
+# if [ "${CONTAINER_UID}" != "${uid}" ]; then
+#     usermod -g "${ug_name}" -o -u "${CONTAINER_UID}" "${ug_name}"
 # fi
 
 # eximコマンドなら設定ファイルを編集する
@@ -50,9 +50,9 @@ if ${command_is_exim}; then
         echo "${EXIM4_RELAY_DOMAIN}: ${EXIM4_RELAY_ADDR}" > /etc/exim4/relay_routes
         sequence_number=1
         while true; do
-            sequence_domain=$(eval "printf $(printf \"\${EXIM4_RELAY_DOMAIN_${sequence_number}-\"\"}\")")
-            sequence_addr=$(eval "printf $(printf \"\${EXIM4_RELAY_ADDR_${sequence_number}-\"\"}\")")
-            if [ -z ${sequence_domain} ] || [ -z ${sequence_addr} ]; then
+            sequence_domain=$(eval "printf $(printf "%s" "\${EXIM4_RELAY_DOMAIN_${sequence_number}-\"\"}")")
+            sequence_addr=$(eval "printf $(printf "%s" "\${EXIM4_RELAY_ADDR_${sequence_number}-\"\"}")")
+            if [ -z "${sequence_domain}" ] || [ -z "${sequence_addr}" ]; then
                 # 未定義なので終了
                 break
             fi
@@ -68,15 +68,15 @@ if ${command_is_exim}; then
     cat /etc/exim4/relay_routes
 
     # 設定ファイル更新
-    sed -i s/dc_smarthost=.*/dc_smarthost=\'${EXIM4_SMARTHOST}\'/ /etc/exim4/update-exim4.conf.conf
+    sed -i s/dc_smarthost=.*/dc_smarthost="${EXIM4_SMARTHOST}"/ /etc/exim4/update-exim4.conf.conf
     update-exim4.conf -v
 fi
 
 # 専用のDebian-eximが使われる
-# if [ $(id -u) -eq ${CONTAINER_UID} ]; then
-#     exec $@
+# if [ "$(id -u)" = "${CONTAINER_UID}" ]; then
+#     exec "$@"
 # else
 #     # ユーザー変更してコマンド実行
-#     exec /usr/sbin/gosu ${ug_name} $@
+#     exec /usr/sbin/gosu "${ug_name}" "$@"
 # fi
-exec $@
+exec "$@"

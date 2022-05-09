@@ -3,7 +3,6 @@ FROM ubuntu
 RUN set -eux \
  && apt-get update -y \
  && apt-get install -y --no-install-recommends \
-        gosu \
         dnsmasq \
  && apt-get -y clean \
  && rm -rf /var/lib/apt/lists/*
