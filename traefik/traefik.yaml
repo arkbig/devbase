@@ -28,7 +28,7 @@ entrypoints:
 log:
   level: DEBUG
   format: json
-accessLog:
+accesslog:
   format: json
 
 # ダッシュボード有効化
