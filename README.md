@@ -464,7 +464,7 @@ exim4:
 
 ## License
 
-This repository's license is [MIT](./LICENSE).
+This repository's license is [zlib](./LICENSE).
 
 Also using the following OSS:
 
