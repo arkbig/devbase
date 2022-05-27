@@ -79,7 +79,7 @@ class OtherServices {
 
 2. edit .env.
 
-   - <details><summary>🍎 for Mac</summary>
+   - <details><summary>▸🍎 for Mac (click here to expand)</summary>
 
      1. CONTAINER_UID / CONTAINER_GID
 
@@ -108,7 +108,7 @@ class OtherServices {
 
      </details>
 
-   - <details><summary>🪟 for Windows(WSL2)</summary>
+   - <details><summary>▸🪟 for Windows(WSL2) (click here to expand)</summary>
 
      1. CONTAINER_UID / CONTAINER_GID
 
@@ -119,7 +119,8 @@ class OtherServices {
 
      2. DNSMASQ_ADDR / DNSMASQ_SERVER
         DNSMASQ_ADDR is the fixed IP address to be given to WSL2 after this, but if you do not change it, the default `192.168.100.100` is ok.
-        I could not find a good one-liner to rewrite DNSMASQ_SERVER, so I will set it manually.Check the DNS server from the adapter you use in Windows "Network Connections".It is usually the same as the Default Gateway shown by "ipconfig" at the command prompt.
+        I could not find a good one-liner to rewrite DNSMASQ_SERVER, so I will set it manually.Check the DNS server from the adapter you use in Windows "Network Connections".
+        It is usually the same as the Default Gateway shown by "ipconfig" at the command prompt.
 
      3. EXIM4_RELAY_DOMAIN / EXIM4_RELAY_ADDR
         This is used to forward mail received by Exim4 to `EXIM4_RELAY_ADDR` if the recipient is `EXIM4_RELAY_DOMAIN`.
@@ -128,7 +129,7 @@ class OtherServices {
 
      </details>
 
-   - <details><summary>🐧 for Ubuntu</summary>
+   - <details><summary>▸🐧 for Ubuntu (click here to expand)</summary>
 
      1. CONTAINER_UID / CONTAINER_GID
 
@@ -164,13 +165,13 @@ class OtherServices {
 
 4. register sslcert/.certs/ca-My-Test.cer to the OS
 
-   - <details><summary>🍎 for Mac</summary>
+   - <details><summary>▸🍎 for Mac (click here to expand)</summary>
 
      - To Keychain Access. (Open the .cer file in the finder.)
 
      </details>
 
-   - <details><summary>🪟 for Windows(WSL2)</summary>
+   - <details><summary>▸🪟 for Windows(WSL2) (click here to expand)</summary>
 
      - To MMC. (Open the .cer file in the explorer.)
        - Certificate store is "Trusted Root Certification Authorities".
@@ -178,7 +179,7 @@ class OtherServices {
 
      </details>
 
-   - <details><summary>🐧 for Ubuntu</summary>
+   - <details><summary>▸🐧 for Ubuntu (click here to expand)</summary>
 
      - copy & add
 
@@ -201,7 +202,7 @@ class OtherServices {
 
 6. DNS related settings
 
-   - <details><summary>🍎 for Mac</summary>
+   - <details><summary>▸🍎 for Mac (click here to expand)</summary>
 
      - ❓ Check command is `sudo lsof -i:53`. If TCP is present but UDP is not, as shown below, this is not supported UDP port forwarding.
 
@@ -249,7 +250,7 @@ class OtherServices {
 
      </details>
 
-   - <details><summary>🪟 for Windows(WSL2)</summary>
+   - <details><summary>▸🪟 for Windows(WSL2) (click here to expand)</summary>
 
      1. set and run wsl2/wsl_startup.bat as administrator on host Windows.
         If necessary, copy wsl_env.bat to .wsl_env.bat to set variables.
@@ -297,7 +298,7 @@ class OtherServices {
 
      </details>
 
-   - <details><summary>🐧 for Ubuntu</summary>
+   - <details><summary>▸🐧 for Ubuntu (click here to expand)</summary>
 
      - Add to /etc/resolv.conf
 
@@ -390,8 +391,8 @@ compose.override.yamlのdnsmasqサービスにenvironmentを指定すると変�
 通常は`DNSMASQ_ADDR`を指定します。
 固定IPならホストマシンのIPアドレス、そうでなければループバックインターフェイスを作成してそれを指定することになるでしょう。
 
-DNSMASQ*DOMAINに指定した値によって、OSのresolverに登録するドメインも変わります。
-DNSMASQ*{DOMAIN,ADDR}\_1とか追加で指定したときも、OSのresolverに追加登録が必要です。
+DNSMASQ_DOMAINに指定した値によって、OSのresolverに登録するドメインも変わります。
+DNSMASQ\_{DOMAIN,ADDR}\_1とか追加で指定したときも、OSのresolverに追加登録が必要です。
 
 ```yaml
 dnsmasq:
