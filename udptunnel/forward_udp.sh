@@ -32,9 +32,9 @@ else
         exec "${self_sh}" "${read_from}" "$@"
     fi
 fi
+same_pid=$(pgrep -f "^(/bin/)?sh +${self_sh} +${read_from}$")
 if [ $# -ge 2 ]; then
     if [ "$2" = "kill" ]; then
-        same_pid=$(pgrep -f "^(/bin/)?sh +${self_sh} +${read_from}$")
         if [ -n "${same_pid}" ]; then
             # shellcheck disable=SC2086
             kill ${same_pid}
@@ -43,6 +43,11 @@ if [ $# -ge 2 ]; then
     else
         echo "Usage: $0 <udp_forwarding.conf> [kill]"
         exit 1
+    fi
+else
+    if [ -n "${same_pid}" ]; then
+        # already running
+        exit
     fi
 fi
 
