@@ -2,7 +2,7 @@
 #====================================================================
 # begin of 定型文
 # このスクリプトを厳格に実行
-set -eu
+set -u
 # set -eux
 # 環境に影響を受けないようにしておく
 umask 0022
@@ -32,10 +32,10 @@ else
         exec "${self_sh}" "${read_from}" "$@"
     fi
 fi
-same_pid=$(pgrep -f "^(/bin/)?sh +${self_sh} +${read_from}$")
+same_pid=$(pgrep -fo "^(/bin/)?sh +${self_sh} +${read_from}$")
 if [ $# -ge 2 ]; then
     if [ "$2" = "kill" ]; then
-        if [ -n "${same_pid}" ]; then
+        if [ -n "${same_pid}" ] && [ "$$" != "${same_pid}" ]; then
             # shellcheck disable=SC2086
             kill ${same_pid}
         fi
@@ -45,8 +45,8 @@ if [ $# -ge 2 ]; then
         exit 1
     fi
 else
-    if [ -n "${same_pid}" ]; then
-        # already running
+    if [ -n "${same_pid}" ] && [ "$$" != "${same_pid}" ]; then
+        echo "Already running pid ${same_pid}"
         exit
     fi
 fi

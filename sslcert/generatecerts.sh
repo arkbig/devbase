@@ -147,7 +147,7 @@ if [ -e "${CERTS_OUT}/${SSL_CERT}" ]; then
 else
     echo "<==== Generating new SSL CERT ${SSL_CERT} ====>"
     # shellcheck disable=SC2086
-    echo "${SSL_ADDEXT}" | openssl x509 -days 60 -CA "${CERTS_OUT}/${CA_CERT}" -CAkey "${CERTS_OUT}/${CA_KEY}" ${ca_passin_args} -CAserial "${CERTS_OUT}/${SSL_SERIAL}" -req -in "${CERTS_OUT}/${SSL_CSR}" -out "${CERTS_OUT}/${SSL_CERT}" -extfile -
+    echo "${SSL_SANS}" | openssl x509 -days 60 -CA "${CERTS_OUT}/${CA_CERT}" -CAkey "${CERTS_OUT}/${CA_KEY}" ${ca_passin_args} -CAserial "${CERTS_OUT}/${SSL_SERIAL}" -req -in "${CERTS_OUT}/${SSL_CSR}" -out "${CERTS_OUT}/${SSL_CERT}" -extfile -
 fi
 
 # 確認 - 余計なのも出力される...-nocert効かない？

@@ -2,7 +2,7 @@
 #====================================================================
 # begin of 定型文
 # このスクリプトを厳格に実行
-set -eu
+set -u
 # set -eux
 # 環境に影響を受けないようにしておく
 umask 0022
@@ -46,7 +46,7 @@ if [ $# -ge 2 ]; then
     fi
 else
     if [ -n "${same_pid}" ]; then
-        # already running
+        echo "Already running pid ${same_pid}"
         exit
     fi
 fi
