@@ -98,8 +98,14 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik:/etc/traefik:ro
-      - ./sslcert/.certs/ssl-dev.test.cer:/certs/ssl-dev.test.cer:ro
-      - ./sslcert/.certs/ssl-dev.test.key:/certs/ssl-dev.test.key:ro
+      - type: bind
+        source: ./sslcert/.certs/ssl-dev.test.cer
+        target: /certs/ssl-dev.test.cer
+        read_only: true
+      - type: bind
+        source: ./sslcert/.certs/ssl-dev.test.key
+        target: /certs/ssl-dev.test.key
+        read_only: true
     network_mode: host
 
   udptunnel:

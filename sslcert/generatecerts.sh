@@ -50,13 +50,16 @@ esac
 # end of ユーザー設定のための環境変数
 #--------------------------------------------------------------------
 
+# 無限ループ
+while true; do
+
 # 有効期限切れチェック -- 起動時に年月日で判定
 if [ -e "${CERTS_OUT}/${SSL_CERT}" ]; then
     ca_enddate=$(openssl x509 -enddate -noout -in "${CERTS_OUT}/${SSL_CERT}")
     ca_enddate=${ca_enddate#notAfter=}
     ca_endtimestamp=$(date --utc +%s --date="$ca_enddate")
-    today_timestamp=$(date --utc +%s)
-    if [ "$ca_endtimestamp" -le "$today_timestamp" ]; then
+    tomorrow_timestamp=$(date --utc +%s --date=tomorrow)
+    if [ "$ca_endtimestamp" -le "$tomorrow_timestamp" ]; then
         echo "${CERTS_OUT}/${SSL_CERT} has expired and will be re-created."
         rm "${CERTS_OUT}/${SSL_CERT}"
     fi
@@ -66,11 +69,11 @@ fi
 # begin of 認証局
 # 認証局のパスワード作成
 if [ -z "${CA_PASS}" ]; then
-    echo "<---- Do NOT use CA passphrase ---->"
+    # echo "<---- Do NOT use CA passphrase ---->"
     ca_passout_args=
     ca_passin_args=
 elif [ -e "${CERTS_OUT}/${CA_PASS}" ]; then
-    echo "<---- Using existing CA Password ${CA_PASS} ---->"
+    # echo "<---- Using existing CA Password ${CA_PASS} ---->"
     ca_passout_args="-aes256 -passout file:${CERTS_OUT}/${CA_PASS}"
     ca_passin_args="-passin file:${CERTS_OUT}/${CA_PASS}"
 else
@@ -83,7 +86,7 @@ fi
 
 # 認証局の秘密鍵作成
 if [ -e "${CERTS_OUT}/${CA_KEY}" ]; then
-    echo "<---- Using existing CA Key ${CA_KEY} ---->"
+    true # echo "<---- Using existing CA Key ${CA_KEY} ---->"
 else
     echo "<==== Generating new CA Key ${CA_KEY} ====>"
     # shellcheck disable=SC2086
@@ -93,7 +96,7 @@ fi
 
 # 認証局の自己証明書作成 --
 if [ -e "${CERTS_OUT}/${CA_CERT}" ]; then
-    echo "<---- Using existing CA Cert ${CA_CERT} ---->"
+    true # echo "<---- Using existing CA Cert ${CA_CERT} ---->"
 else
     echo "<==== Generating new CA Cert ${CA_CERT} ====>"
     # shellcheck disable=SC2086
@@ -106,11 +109,11 @@ fi
 # begin of 証明書
 # 証明書のパスワード作成
 if [ -z "${SSL_PASS}" ]; then
-    echo "<---- Do NOT use SSL passphrase ---->"
+    # echo "<---- Do NOT use SSL passphrase ---->"
     ssl_passout_args=
     ssl_passin_args=
 elif [ -e "${CERTS_OUT}/${SSL_PASS}" ]; then
-    echo "<---- Using existing SSL Password ${SSL_PASS} ---->"
+    # echo "<---- Using existing SSL Password ${SSL_PASS} ---->"
     ssl_passout_args="-aes256 -passout file:${CERTS_OUT}/${SSL_PASS}"
     ssl_passin_args="-passin file:${CERTS_OUT}/${SSL_PASS}"
 else
@@ -123,7 +126,7 @@ fi
 
 # 証明書の秘密鍵作成
 if [ -e "${CERTS_OUT}/${SSL_KEY}" ]; then
-    echo "<---- Using existing SSL Key ${SSL_KEY} ---->"
+    true # echo "<---- Using existing SSL Key ${SSL_KEY} ---->"
 else
     echo "<==== Generating new SSL Key ${SSL_KEY} ====>"
     # shellcheck disable=SC2086
@@ -133,7 +136,7 @@ fi
 
 # 証明書署名要求作成 - 自己証明するので要求は最低限で、証明時に全て指定する
 if [ -e "${CERTS_OUT}/${SSL_CSR}" ]; then
-    echo "<---- Using existing SSL CSR ${SSL_CSR} ---->"
+    true # echo "<---- Using existing SSL CSR ${SSL_CSR} ---->"
 else
     # shellcheck disable=SC2086
     openssl req -new -key "${CERTS_OUT}/${SSL_KEY}" ${ssl_passin_args} -subj "${SSL_SUBJ}" -out "${CERTS_OUT}/${SSL_CSR}"
@@ -141,7 +144,7 @@ fi
 
 # 証明書署名要求のシリアル番号作成 - 再作成時は自動インクリメントされるのを使う
 if [ -e "${CERTS_OUT}/${SSL_SERIAL}" ]; then
-    echo "<---- Using existing SSL Serial ${SSL_SERIAL} ---->"
+    true # echo "<---- Using existing SSL Serial ${SSL_SERIAL} ---->"
 else
     echo "<==== Generating new SSL Serial ${SSL_SERIAL} ====>"
     echo 00 >"${CERTS_OUT}/${SSL_SERIAL}"
@@ -149,14 +152,17 @@ fi
 
 # CA署名証明書作成
 if [ -e "${CERTS_OUT}/${SSL_CERT}" ]; then
-    echo "<---- Using existing SSL CERT ${SSL_CERT} ---->"
+    true # echo "<---- Using existing SSL CERT ${SSL_CERT} ---->"
 else
     echo "<==== Generating new SSL CERT ${SSL_CERT} ====>"
     # shellcheck disable=SC2086
     echo "${SSL_SANS}" | openssl x509 -days 60 -CA "${CERTS_OUT}/${CA_CERT}" -CAkey "${CERTS_OUT}/${CA_KEY}" ${ca_passin_args} -CAserial "${CERTS_OUT}/${SSL_SERIAL}" -req -in "${CERTS_OUT}/${SSL_CSR}" -out "${CERTS_OUT}/${SSL_CERT}" -extfile -
+    # 確認 - 余計なのも出力される...-nocert効かない？
+    openssl x509 -text -in "${CERTS_OUT}/${SSL_CERT}" -noout -nocert -issuer -enddate -subject -ext subjectAltName
 fi
-
-# 確認 - 余計なのも出力される...-nocert効かない？
-openssl x509 -text -in "${CERTS_OUT}/${SSL_CERT}" -noout -nocert -issuer -enddate -subject -ext subjectAltName
 # end of 証明書
 #--------------------------------------------------------------------
+
+# １日経ったら期限切れチェックに戻る
+sleep 1d
+done
