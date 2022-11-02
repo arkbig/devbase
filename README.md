@@ -1,18 +1,18 @@
-# devbase
+# DevBase
 
 Development base environment stack using Docker containers. Using Traefik with TLS, Dnsmasq, Exim4 and MailHog.
 
-I have confirmed that it works with Colima on macOS and WSL2 on Windows 10.
+I have confirmed that it works with Colima on macOS (and sometime WSL2 on Windows 10).
 It will probably work on Linux as well.
 
-## Key feutures
+## Key Features
 
 - The combination of Traefik and Dnsmasq allows switching the access container by hostname instead of port number.
 - You can use MailHog to receive even dummy email addresses.
 - By using Exim4, only specific domains can be forwarded to regular SMTP.
 - Create a self certification authority and a self certificate with openssl to enable https access.
 
-The software used is as follows:
+## The software used
 
 ```mermaid
 classDiagram
@@ -60,16 +60,21 @@ class MailHog {
     - on Docker(service)
 }
 class OtherServices {
-    - Access with hostname oreore.dev.test
+    - Access with hostname hoge.dev.test
     - on Docker(service)
 }
 ```
 
-> **_NOTE:_** Sorry, my native language is Japanese.
+## Motivation
+
+- Want to have the same environment locally as in production.
+  - Use hostname instead of ip address and port number.
+  - Use https instead of http.
+- Want to receive notification locally as well.
 
 ## Install
 
-1. clone this repositoy and copy sample.env to .env. (run on WSL2 if Windows)
+1. Clone this repository and copy sample.env to .env. (Run on WSL2 if Windows)
 
    ```sh
    git clone https://github.com/arkbig/devbase.git
@@ -77,7 +82,7 @@ class OtherServices {
    cp sample.env .env
    ```
 
-2. edit .env.
+2. Edit .env.
 
    - <details><summary>▸🍎 for Mac (click here to expand)</summary>
 
@@ -91,10 +96,10 @@ class OtherServices {
      2. DNSMASQ_ADDR / DNSMASQ_SERVER
 
         ```sh
-        # change to your ethernet.
+        # Change to your ethernet.
         use_eth=en0
         sed -i "" "s/^DNSMASQ_ADDR=.*/DNSMASQ_ADDR=`ifconfig "${use_eth}" |grep 'inet '|awk 'END {print $2}'`/" .env
-        # bat DNSMASQ_SERVER unuse on Mac.
+        # DNSMASQ_SERVER is set up but unused on Mac.
         sed -i "" -r "s/^#? ?DNSMASQ_SERVER=.*/DNSMASQ_SERVER=`cat /etc/resolv.conf|grep '^nameserver '|awk 'NR==1 {print $2}'`/" .env
         ```
 
@@ -141,7 +146,7 @@ class OtherServices {
      2. DNSMASQ_ADDR / DNSMASQ_SERVER
 
         ```sh
-        # change to your ethernet.
+        # Change to your ethernet.
         use_eth=eth0
         sed -i "s/^DNSMASQ_ADDR=.*/DNSMASQ_ADDR=`ip a show ${use_eth}|grep 'inet '|awk 'END {print $2}'|awk -F '/' '{print $1}'`/" .env
         # or set manually.
@@ -155,15 +160,16 @@ class OtherServices {
 
      </details>
 
-3. create certificates.
+3. Make certificates first.
 
    ```sh
    mkdir sslcert/.certs
    docker compose build sslcert
    docker compose run --rm sslcert
+   # Stop with Ctrl-C
    ```
 
-4. register sslcert/.certs/ca-My-Test.cer to the OS
+4. Register sslcert/.certs/ca-My-Test.cer to the OS
 
    - <details><summary>▸🍎 for Mac (click here to expand)</summary>
 
@@ -181,7 +187,7 @@ class OtherServices {
 
    - <details><summary>▸🐧 for Ubuntu (click here to expand)</summary>
 
-     - copy & add
+     - Copy & Add
 
        ```sh
        sudo mkdir /usr/share/ca-certificates/self
@@ -192,7 +198,7 @@ class OtherServices {
 
      </details>
 
-5. run compose.
+5. Run compose.
 
    ```sh
    docker compose up -d
@@ -252,20 +258,20 @@ class OtherServices {
 
    - <details><summary>▸🪟 for Windows(WSL2) (click here to expand)</summary>
 
-     1. set and run wsl2/wsl_startup.bat as administrator on host Windows.
+     1. Set and run wsl2/wsl_startup.bat as administrator on host Windows.
         If necessary, copy wsl_env.bat to .wsl_env.bat to set variables.
         wsl_startup.bat does the following by default:
 
-        - set static ip address to WSL. (IMPORTANT here)
-        - start dockerd
-        - start sshd
-        - port forwarding for ssh
+        - Set static ip address to WSL. (IMPORTANT here)
+        - Start dockerd
+        - Start sshd
+        - Port forwarding for ssh
 
-        register wsl_startup_helper.bat in task scheduler to run as administrator at startup.
-        copy these like `cp wsl2/wsl_startup_helper.bat to /mnt/c/Users/$USER/` first.
-        and wsl_startup_helper.bat's arg is path to wsl_startup.bat like "\\\\wsl$\\Ubuntu-20.04\\Home\\user\\devbase\\wsl2\wsl_startup.bat"
+        Register wsl_startup_helper.bat in task scheduler to run as administrator at startup.
+        Copy these like `cp wsl2/wsl_startup_helper.bat to /mnt/c/Users/$USER/` first.
+        And wsl_startup_helper.bat's arg is path to wsl_startup.bat like `\\wsl$\Ubuntu-20.04\Home\user\devbase\wsl2\wsl_startup.bat`
 
-     2. ❓ check command is `ping 192.168.100.100`.(This is the DNSMASQ_ADDR.) both Win and WSL.
+     2. ❓ Check command is `ping 192.168.100.100`.(This is the DNSMASQ_ADDR.) Both Win and WSL.
      3. Change adapter settings.
         Set "Use the following DNS server addresses:"
 
@@ -312,155 +318,39 @@ class OtherServices {
 
      </details>
 
-7. ❓ check.
+7. ❓ Check.
    - Access <https://traefik.dev.test>
    - If you see the Traefik dashboard, success!🎉
 
-## Customize
+## Usage
 
-### Popular settings
+- **Traefik**: [https://traefik.dev.test]
+  - Traefik is reverse-proxy.
+  - Registered domains can be viewed on the dashboard.
+- **MailHog**: [https://mailhog-devbase.dev.test]
+  - MailHog is dummy mail box.
+  - You can see the emails sent to `mailhog-devbase.dev.test:25` or `exim4-devbase.dev.test:587`.
 
-`compose.override.yaml`にDNSMASQ_ADDRを設定します。
-IPアドレスの部分は自分のマシンのものに置き換えてください。
-127.0.0.1だとコンテナから\*.dev.testにアクセスした場合、コンテナ内を指すことになります。
-このようにホストのIPアドレスを指定すれば、コンテナからもホストマシンへアクセスできるようになります。
+If you want to add other services, maybe you can create a branch.
 
-```yaml
-services:
-  dnsmasq:
-    environment:
-      DNSMASQ_ADDR: 10.0.0.1
+```sh
+git checkout -b local
 ```
 
-### Self CA / Self signed certificates
+Then add it to compose.yaml. For example, if you want to add plantuml.
 
-compose.override.yamlのsslcertサービスにenvironmentsを指定すると変更できます。
-下記がデフォルト値での設定例です。
-
-```yaml
-sslcert:
-  environment:
-    # 作成される証明書たちのownerを指定
-    CONTAINER_UID: 501
-    CONTAINER_GID: 20
-    # 出力先フォルダ(コンテナ内パス)
-    CERTS_OUT: /certs
-    # 自己認証局の設定
-    ## 名称
-    CA_CN: My Test
-    ## 生成するファイルのbasename
-    CA_FILEBODY: <normalized CA_CN>
-    ## OSに登録する認証局の証明書ファイル名
-    CA_CERT: $CA_FILEBODY.cer
-    ## 証明書発行時に使用する証明書の秘密鍵
-    CA_KEY: $CA_FILEBODY.key
-    ## 秘密鍵の保存時の暗号パスワード（空文字なら平文保存）
-    CA_PASS: $CA_FILEBODY.pass
-    ## 認証局の属性
-    ## /C=国コード/ST=県/O=組織名/OU=部門などが指定できる
-    ## /CN=が未指定なら自動で/CN=$CA_CNが付与される
-    CA_SUBJ: /CN=$CA_CN
-    # 自己証明書の設定
-    ## 名称（古いシステム用のドメイン）
-    SSL_CN: dev.test
-    ## 新しいシステム用のSANなど
-    SSL_ADDEXT: subjectAltName=DNS:test,DNS,dev.test,DNS:*.dev.test,DNS:localhost,DNS:dev.localhost,DNS:*.dev.localhost,IP:127.0.0.1
-    ## 生成するファイルのbasename
-    SSL_FILEBODY: <normalized SSL_CN>
-    ## サーバーに設定する自己証明書（公開鍵）
-    SSL_CERT: $SSL_FILEBODY.cer
-    ## サーバーに設定する自己証明書の秘密鍵
-    SSL_KEY: $SSL_FILEBODY.key
-    ## 認証局への署名リクエストファイル（手抜きなので本番には使えない）
-    SSL_CSR: $SSL_FILEBODY.csr
-    ## 自己証明書の保存時の暗号パスワード（空文字なら平文保存）
-    SSL_PASS: ""
-    ## 自己証明書のシリアル番号保存ファイル
-    SSL_SERIAL: $SSL_FILEBODY.srl
-    ## 自己証明書の属性
-    ## /C=国コード/ST=県/O=組織名/OU=部門などが指定できる
-    ## /CN=が未指定なら自動で/CN=$SSL_CNが付与される
-    SSL_SUBL: /CN=$SSL_CN
+```yml
+  plantuml:
+    image: plantuml/plantuml-server
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1::8080
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.plantuml-${COMPOSE_PROJECT_NAME:-devbase}.entrypoints=https
 ```
 
-### Dnsmasq
-
-compose.override.yamlのdnsmasqサービスにenvironmentを指定すると変更できます。
-下記がデフォルト値での設定例です。
-
-通常は`DNSMASQ_ADDR`を指定します。
-固定IPならホストマシンのIPアドレス、そうでなければループバックインターフェイスを作成してそれを指定することになるでしょう。
-
-DNSMASQ_DOMAINに指定した値によって、OSのresolverに登録するドメインも変わります。
-DNSMASQ\_{DOMAIN,ADDR}\_1とか追加で指定したときも、OSのresolverに追加登録が必要です。
-
-```yaml
-dnsmasq:
-  environment:
-    # Dnsmasqの起動引数
-    # この他に -A "/$DNSMASQ_DOMAIN/DNSMASK_ADDR -A ...が付与される
-    DNSMASQ_ARGS: -h -k -n -R -u root -8 -
-    # メインの変換ドメイン
-    DNSMASQ_DOMAIN: .test
-    # メインの変換IPアドレス(コンテナから使用するため、ホストIPアドレスにすべき)
-    DNSMASQ_ADDR: 192.168.100.100
-    # 以降も連番で指定可能
-    # 空文字れつもしくは未定義に遭遇するとそこで終了
-    # "-"ハイフンだけならその番号はスキップして、次の番号を処理
-    DNSMASQ_DOMAIN_1:
-    DNSMASQ_ADDR_1:
-    # 通常使うDNSサーバー
-    DNSMASQ_SERVER: 1.1.1.1
-    # 以降も連番で指定可能
-    # 空文字れつもしくは未定義に遭遇するとそこで終了
-    # "-"ハイフンだけならその番号はスキップして、次の番号を処理
-    DNSMASQ_SERVER_1:
-```
-
-## udptunnel
-
-compose.override.yamlのudptunnelサービスにenvironmentを指定すると変更できます。
-下記がデフォルト値での設定例です。
-
-```yaml
-udptunnel:
-  environment:
-    # コンテナ内でコマンド実行するownerを指定
-    CONTAINER_UID: 501
-    CONTAINER_GID: 20
-```
-
-また、udp_forwarding.confを変更すると別のポート番号もトンネルできます。
-
-## MailHog
-
-特になし。[公式のコンテナ](https://hub.docker.com/r/mailhog/mailhog/)を使っています。
-
-## Exim4
-
-compose.override.yamlのexim4サービスにenvironmentを指定すると変更できます。
-下記がデフォルト値での設定例です。
-
-社内用なら`EXIM4_RELAY_DOMAIN`に自社のドメイン名、`EXIM4_RELAY_ADDR`に自社のSMTPサーバーをそれぞれ指定することになるでしょう。
-これで、宛先を間違えて社外に情報が流出するのを防げます。
-
-```yaml
-exim4:
-  environment:
-    # 通常のメール転送先(ポート番号指定する場合"::"コロンが２つなので注意)
-    EXIM4_SMARTHOST: mailhog::1025
-    # 宛先ドメインが指定したものだったら、専用の転送先に送る
-    EXIM4_RELAY_DOMAIN:
-    # 専用の転送先(これもポート番号指定する場合"::"コロンが２つなので注意)
-    EXIM4_RELAY_ADDR:
-    # 追加の変更ドメイン
-    EXIM4_RELAY_DOMAIN_1:
-    # 追加の変更IPアドレス
-    EXIM4_RELAY_ADDR_1:
-    # 以降も連番で指定可能
-    # 空文字れつもしくは未定義に遭遇するとそこで終了
-    # "-"ハイフンだけならその番号はスキップして、次の番号を処理
-```
+Once applied with `docker compose up -d`, PlantUML can be used at [https://plantuml-devbase.dev.test].
 
 ## License
 
