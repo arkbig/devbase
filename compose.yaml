@@ -128,3 +128,12 @@ services:
     network_mode: host
     profiles:
       - udptunnel
+
+  plantuml:
+    image: plantuml/plantuml-server
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1::8080
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.plantuml-${COMPOSE_PROJECT_NAME:-devbase}.entrypoints=https
