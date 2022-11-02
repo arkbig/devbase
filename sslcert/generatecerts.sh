@@ -50,11 +50,17 @@ esac
 # end of ユーザー設定のための環境変数
 #--------------------------------------------------------------------
 
-# TODO: 有効期限切れチェック
-# if [ -e "${CERTS_OUT}/${CA_CERT}" ]; then
-#     ca_enddate=`openssl x509 -enddate -noout -in "${CERTS_OUT}/${CA_CERT}"`
-#     ca_endmonth=`echo "$ca_enddate" | `
-# fi
+# 有効期限切れチェック -- 起動時に年月日で判定
+if [ -e "${CERTS_OUT}/${SSL_CERT}" ]; then
+    ca_enddate=$(openssl x509 -enddate -noout -in "${CERTS_OUT}/${SSL_CERT}")
+    ca_enddate=${ca_enddate#notAfter=}
+    ca_endtimestamp=$(date --utc +%s --date="$ca_enddate")
+    today_timestamp=$(date --utc +%s)
+    if [ "$ca_endtimestamp" -le "$today_timestamp" ]; then
+        echo "${CERTS_OUT}/${SSL_CERT} has expired and will be re-created."
+        rm "${CERTS_OUT}/${SSL_CERT}"
+    fi
+fi
 
 #====================================================================
 # begin of 認証局

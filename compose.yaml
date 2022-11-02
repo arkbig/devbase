@@ -74,6 +74,7 @@ services:
 
   sslcert:
     image: arkbig/sslcert
+    restart: unless-stopped
     build:
       context: ./sslcert
       args:
