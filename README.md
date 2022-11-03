@@ -5,6 +5,12 @@ Development base environment stack using Docker containers. Using Traefik with T
 I have confirmed that it works with Colima on macOS (and sometime WSL2 on Windows 10).
 It will probably work on Linux as well.
 
+**日本語の説明/Japanease description**
+
+- [紹介記事](https://zenn.dev/arkbig/articles/devbase_b8b43191f863f8024a83f824c832f8ca0e5d209254)に日本語で使用方法を書いています。
+- [実装の解説本](https://zenn.dev/arkbig/books/devbase-2022_b1b24e6e8db350a1f7f379af3833e90d79ad5
+)に日本語で実装について書いています。
+
 ## Key Features
 
 - The combination of Traefik and Dnsmasq allows switching the access container by hostname instead of port number.
@@ -351,6 +357,18 @@ Then add it to compose.yaml. For example, if you want to add plantuml.
 ```
 
 Once applied with `docker compose up -d`, PlantUML can be used at [https://plantuml-devbase.dev.test].
+
+## Notes
+
+The self certificate is set to expire in 60 days; it is automatically renewed if the sslcert service is started, but the dynamic detection of the file does not work well on Colima and Traefik needs to be started again.
+
+This will be automatically restarted and updated when the PC is started, as long as the PC is shut down daily.
+
+Or
+
+```sh
+docker compose restart
+```
 
 ## License
 
