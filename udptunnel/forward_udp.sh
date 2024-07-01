@@ -79,7 +79,9 @@ while read -r line; do
     dest_host=$(printf "%s" "${line}" | cut -f 1 -d : -s)
     udp_port=$(printf "%s" "${line}" | cut -f 2 -d : -s)
     tcp_port=$(printf "%s" "${line}" | cut -f 3 -d : -s)
-    if [ -z "${tcp_port}" ]; then
+    forward_port=$(printf "%s" "${line}" | cut -f 4 -d : -s)
+    if [ -z "${forward_port}" ]; then
+        forward_port="${tcp_port}"
         tcp_port="${udp_port}"
         udp_port="${dest_host}"
         dest_host=127.0.0.1

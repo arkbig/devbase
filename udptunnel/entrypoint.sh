@@ -19,11 +19,22 @@ gid=$(stat -c "%g" .)
 ug_name=udpstaff
 if [ "${CONTAINER_GID}" != "${gid}" ]; then
     groupmod -g "${CONTAINER_GID}" -o "${ug_name}"
-    chgrp -R "${CONTAINER_GID}" .
 fi
 if [ "${CONTAINER_UID}" != "${uid}" ]; then
     usermod -g "${ug_name}" -o -u "${CONTAINER_UID}" "${ug_name}"
 fi
+# コンテナ内作成ディレクトリのUID,GIDを合わせる
+mk_dirs="/home/${ug_name}"
+for mk_dir in ${mk_dirs}; do
+    uid=$(stat -c "%u" "${mk_dir}")
+    gid=$(stat -c "%g" "${mk_dir}")
+    if [ "${CONTAINER_GID}" != "${gid}" ]; then
+        chgrp -R "${CONTAINER_GID}" "${mk_dir}"
+    fi
+    if [ "${CONTAINER_UID}" != "${uid}" ]; then
+        chown -R "${CONTAINER_UID}" "${mk_dir}"
+    fi
+done
 
 if [ "$(id -u)" = "${CONTAINER_UID}" ]; then
     exec "$@"

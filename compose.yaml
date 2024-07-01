@@ -15,14 +15,14 @@ services:
       # This is your DNS server.
       DNSMASQ_SERVER: ${DNSMASQ_SERVER-1.1.1.1}
     ports:
-      - 127.0.0.1::53
+      # - 127.0.0.1::53
       - 127.0.0.1::53/udp
     labels:
       - traefik.enable=true
       # TCP (non-tls)
-      - traefik.tcp.routers.dnsmasq-${COMPOSE_PROJECT_NAME:-devbase}.entrypoints=dns-tcp
-      - traefik.tcp.routers.dnsmasq-${COMPOSE_PROJECT_NAME:-devbase}.rule=HostSNI(`*`)
-      - traefik.tcp.services.dnsmasq-${COMPOSE_PROJECT_NAME:-devbase}.loadbalancer.server.port=53
+      # - traefik.tcp.routers.dnsmasq-${COMPOSE_PROJECT_NAME:-devbase}.entrypoints=dns-tcp
+      # - traefik.tcp.routers.dnsmasq-${COMPOSE_PROJECT_NAME:-devbase}.rule=HostSNI(`*`)
+      # - traefik.tcp.services.dnsmasq-${COMPOSE_PROJECT_NAME:-devbase}.loadbalancer.server.port=53
       # UDP
       - traefik.udp.routers.dnsmasq-${COMPOSE_PROJECT_NAME:-devbase}.entrypoints=dns-udp
       - traefik.udp.services.dnsmasq-${COMPOSE_PROJECT_NAME:-devbase}.loadbalancer.server.port=53
@@ -75,6 +75,7 @@ services:
   sslcert:
     image: arkbig/sslcert
     restart: unless-stopped
+    init: true
     build:
       context: ./sslcert
       args:
@@ -128,3 +129,13 @@ services:
     network_mode: host
     profiles:
       - udptunnel
+
+  plantuml:
+    image: plantuml/plantuml-server
+    init: true
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1::8080
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.plantuml-${COMPOSE_PROJECT_NAME:-devbase}.entrypoints=https

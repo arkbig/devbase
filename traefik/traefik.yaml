@@ -6,10 +6,10 @@ global:
 entrypoints:
   smtp:
     address: :25
-  dns-tcp:
-    address: :53/tcp
+  # dns-tcp:
+  #   address: :53/tcp
   dns-udp:
-    address: :53/udp
+    address: :3553/udp
   http:
     address: :80
     # httpsにリダイレクト
