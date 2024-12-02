@@ -9,18 +9,18 @@ call "%~df0" "%~df1"
 exit /b %errorlevel%
 
 :skip_copy_self
-REM ã“ã®ãƒãƒƒãƒãƒ•ã‚¡ã‚¤ãƒ«ã‚’Windowså´ã«ã‚³ãƒ”ãƒ¼ã—ã¦(ä¾‹$ cp wsl_startup_helper.bat /mnt/c/Users/username/bin/)
+REM ‚±‚Ìƒoƒbƒ`ƒtƒ@ƒCƒ‹‚ğWindows‘¤‚ÉƒRƒs[‚µ‚Ä(—á$ cp wsl_startup_helper.bat /mnt/c/Users/username/bin/)
 REM wsl_startup_helper.bat \\wsl$\Ubuntu-20.04\home\username\devbase\wsl2\wsl_startup_all.bat
-REM ã®ã‚ˆã†ã«WSL2ã®èµ·å‹•ãƒãƒƒãƒãƒ•ã‚¡ã‚¤ãƒ«ã‚’æŒ‡å®šã—ã¦ã€ã‚¿ã‚¹ã‚¯ã‚¹ã‚±ã‚¸ãƒ¥ãƒ¼ãƒ©ãƒ¼ã«ç™»éŒ²ã—ã¦ãã ã•ã„ã€‚
-REM ç®¡ç†è€…æ¨©é™ãŒå¿…è¦ãªã®ã§ã€Œæœ€ä¸Šä½ã®ç‰¹æ¨©ã§å®Ÿè¡Œã™ã‚‹ã€ã«ãƒã‚§ãƒƒã‚¯ã‚’å…¥ã‚Œã¦ãã ã•ã„ã€‚
+REM ‚Ì‚æ‚¤‚ÉWSL2‚Ì‹N“®ƒoƒbƒ`ƒtƒ@ƒCƒ‹‚ğw’è‚µ‚ÄAƒ^ƒXƒNƒXƒPƒWƒ…[ƒ‰[‚É“o˜^‚µ‚Ä‚­‚¾‚³‚¢B
+REM ŠÇ—ÒŒ ŒÀ‚ª•K—v‚È‚Ì‚ÅuÅãˆÊ‚Ì“ÁŒ ‚ÅÀs‚·‚év‚Éƒ`ƒFƒbƒN‚ğ“ü‚ê‚Ä‚­‚¾‚³‚¢B
 
 if "%~1"=="" (
-    echo å®Ÿè¡Œã™ã‚‹ãƒãƒƒãƒã‚’å¼•æ•°ã«æŒ‡å®šã—ã¦ãã ã•ã„
+    echo Às‚·‚éƒoƒbƒ`‚ğˆø”‚Éw’è‚µ‚Ä‚­‚¾‚³‚¢
     pause
     exit /b 1
 )
 
-REM æ›´æ–°ãƒã‚§ãƒƒã‚¯---ä¸è¦ãªã‚‰goto skip_diff
+REM XVƒ`ƒFƒbƒN---•s—v‚È‚çgoto skip_diff
 REM goto skip_diff
 set existdiff=
 for /F "usebackq delims=" %%p in (`wsl -e wslpath "%~df0"`) do (
@@ -41,7 +41,7 @@ if not "%realpath%"=="" (
 set wantcopy=n
 if not "%existdiff%"=="" (
     set wantcopy=Y
-    set /P wantcopy=ã‚¹ã‚¿ãƒ¼ãƒˆã‚¢ãƒƒãƒ—ç™»éŒ²ãƒãƒƒãƒãŒæ›´æ–°ã•ã‚Œã¾ã—ãŸã€‚ã‚³ãƒ”ãƒ¼ã—ã¾ã™ã‹ï¼Ÿ [Y/n]
+    set /P wantcopy=ƒXƒ^[ƒgƒAƒbƒv“o˜^ƒoƒbƒ`‚ªXV‚³‚ê‚Ü‚µ‚½BƒRƒs[‚µ‚Ü‚·‚©H [Y/n]
 )
 if "%wantcopy%"=="Y" (
     goto copy_self
@@ -53,7 +53,7 @@ if "%wantcopy%"=="Y" (
 wsl -e ps
 wsl -l --running
 if not %errorlevel%==0 (
-    echo WSLã®èµ·å‹•ãŒç¢ºèªã§ãã¾ã›ã‚“ã§ã—ãŸã€‚æ™‚é–“ã‚’ãŠã„ã¦å®Ÿè¡Œã—ã¦ã¿ã¦ãã ã•ã„ã€‚
+    echo WSL‚Ì‹N“®‚ªŠm”F‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½BŠÔ‚ğ‚¨‚¢‚ÄÀs‚µ‚Ä‚İ‚Ä‚­‚¾‚³‚¢B
     exit /b %errorlevel%
 )
 

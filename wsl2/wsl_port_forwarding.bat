@@ -12,7 +12,7 @@ echo "-r --rm   Remove port forwarding settings only (not set new)."
 exit /b 1
 
 :begin
-REM å¼•æ•°ãƒã‚§ãƒƒã‚¯
+REM ˆø”ƒ`ƒFƒbƒN
 set rmflag=
 set portno=
 for %%a in (%*) do (
@@ -27,7 +27,7 @@ for %%a in (%*) do (
     )
 )
 if "%portno%"=="" goto usage
-REM æ•°å­—ï¼Ÿ
+REM ”šH
 cd >nul
 set /a portno=%portno%
 if not %errorlevel% == 0 goto usage
@@ -35,13 +35,13 @@ if %portno% leq 0 goto usage
 
 @echo on
 
-REM å¤ã„è¨­å®šå‰Šé™¤
+REM ŒÃ‚¢İ’èíœ
 netsh interface portproxy delete v4tov4 listenport=%portno%
 netsh advfirewall firewall delete rule name="WSL port %portno%"
 
 if not "%rmflag%"=="" exit /b 0
 
-REM æ–°ã—ã„è¨­å®š
+REM V‚µ‚¢İ’è
 netsh interface portproxy add v4tov4 listenport=%portno% listenaddress=0.0.0.0 connectport=%portno% connectaddress=%DNSMASQ_ADDR%
 @if errorlevel 1 pause
 netsh advfirewall firewall add rule name="WSL port %portno%" dir=in action=allow protocol=tcp localport=%portno%

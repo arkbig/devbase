@@ -1,19 +1,19 @@
 @echo off
-REM # 必要に応じて設定変更（wsl_env.batをコピーして、.wsl_env.batを作る）
-REM 変数名は(あれば)コンテナで使用するenvironmentと合わせてます。
-REM シェル環境変数 > .wsl_env.bat > wsl_env.bat の順に優先されます。
+REM # �K�v�ɉ����Đݒ�ύX�iwsl_env.bat���R�s�[���āA.wsl_env.bat�����j
+REM �ϐ�����(�����)�R���e�i�Ŏg�p����environment�ƍ��킹�Ă܂��B
+REM �V�F�����ϐ� > .wsl_env.bat > wsl_env.bat �̏��ɗD�悳��܂��B
 
-REM 個人設定を優先する
+REM �l�ݒ��D�悷��
 if not "%~nx0"==".wsl_env.bat" (
     if exist "%~dp0.wsl_env.bat" (
         call "%~dp0.wsl_env.bat"
     )
 )
 REM ========================================
-REM ネットワーク設定
+REM �l�b�g���[�N�ݒ�
 REM ========================================
 
-REM 通常使うDNSサーバーを指定(set as Secondary DNS)
+REM �ʏ�g��DNS�T�[�o�[���w��(set as Secondary DNS)
 if "%DNSMASQ_SERVER%"=="" set DNSMASQ_SERVER=1.1.1.1
 
 REM IP address for WSL2
@@ -26,10 +26,10 @@ if "%WSL2_GATEWAY%"=="" set WSL2_GATEWAY=192.168.100.1
 if "%WSL2_GATEWAY_SUBNET%"=="" set WSL2_GATEWAY_SUBNET=255.255.255.0
 
 REM ========================================
-REM スタートアップ対象選択
+REM �X�^�[�g�A�b�v�ΏۑI��
 REM ========================================
 
-REM 同階層のバッチを指定すると、この順番で実行されます。
+REM ���K�w�̃o�b�`���w�肷��ƁA���̏��ԂŎ��s����܂��B
 if "%WSL2_STARTUP_LIST%"=="" (
     set WSL2_STARTUP_LIST=^
         wsl_assign_ip.bat ^
@@ -38,8 +38,9 @@ if "%WSL2_STARTUP_LIST%"=="" (
         ;
 )
 
-REM ポートフォワーディング対象（ポート番号をスペース区切りで指定）
-REM 設定すれば、wsl_port_forwarding.batが実行される
+REM �|�[�g�t�H���[�f�B���O�Ώہi�|�[�g�ԍ����X�y�[�X��؂�Ŏw��j
+REM �ݒ肷��΁Awsl_port_forwarding.bat�����s�����
+REM �s�v�ł���΁A0���w��
 if "%WSL2_PORT_FORWARDING_LIST%"=="" (
     set WSL2_PORT_FORWARDING_LIST=22
 )

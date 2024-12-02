@@ -2,7 +2,7 @@
 setlocal
 call "%~dp0wsl_env.bat"
 
-REM WSL2èµ·å‹•å¾…ã¡ä»£ã‚ã‚Š
+REM WSL2‹N“®‘Ò‚¿‘ã‚í‚è
 wsl -e ps
 
 @echo on
@@ -10,12 +10,12 @@ wsl -e ps
 wsl -l --running
 if not %errorlevel%==0 exit /b %errorlevel%
 
-@REM ã‚¹ã‚¿ãƒ¼ãƒˆã‚¢ãƒƒãƒ—å¯¾è±¡ã‚’å‡¦ç†
+@REM ƒXƒ^[ƒgƒAƒbƒv‘ÎÛ‚ðˆ—
 @for %%b in (%WSL2_STARTUP_LIST%) do (
     call "%~dp0%%b"
 )
 
-@REM ãƒãƒ¼ãƒˆãƒ•ã‚©ãƒ¯ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°å¯¾è±¡ã‚’å‡¦ç†
+@REM ƒ|[ƒgƒtƒHƒ[ƒfƒBƒ“ƒO‘ÎÛ‚ðˆ—
 @for %%p in (%WSL2_PORT_FORWARDING_LIST%) do (
-    call "%~dp0wsl_port_forwarding.bat" %%p
+    @if not %%p==0 call "%~dp0wsl_port_forwarding.bat" %%p
 )
